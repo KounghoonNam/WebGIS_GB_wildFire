@@ -1,6 +1,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>경북 산불 레이더 재생 트윈</title>
+<title>경북 산불 디지털 트윈</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
@@ -10,7 +10,7 @@
 :root{
   --bg:#eef1f2; --panel:#ffffff; --ink:#1d2528; --muted:#5f6b70; --line:#d5dcdf; --accent:#1f6f78;
   --sea:#c9dbe3; --map-ink:#3b464a; --sgg:#2a2f45;
-  --wait:#f7f9f9; --alarm:#e3a21a; --fire:#c8372d; --miss:#6e1d18; --out:#a8b2b6; --core:#ffcf3f;
+  --wait:#f7f9f9; --watch:#e9d66b; --alarm:#e3a21a; --fire:#c8372d; --miss:#6e1d18; --out:#a8b2b6; --core:#ffcf3f;
   --font-ui:"IBM Plex Sans KR","Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;
   --font-num:"IBM Plex Mono",ui-monospace,"Consolas",monospace;
 }
@@ -20,6 +20,7 @@
 :root[data-theme="dark"]{
   --bg:#141a1c; --panel:#1c2427; --ink:#e4ebed; --muted:#9aa8ad; --line:#2f3a3e; --accent:#5fb7c0;
   --sea:#13232b; --map-ink:#b9c6ca; --sgg:#e8ecf5; --wait:#d9e1e3; --out:#5a666a; color-scheme:dark }
+[hidden]{display:none!important}
 html,body{height:100%}
 body{background:var(--bg); color:var(--ink); font-family:var(--font-ui); font-size:14px;
   padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px)); padding-block:12px;
@@ -86,8 +87,8 @@ aside{min-width:0; display:flex; flex-direction:column; gap:10px; overflow:auto}
 
 <header>
   <div>
-    <h1>경북 산불 레이더 재생 트윈</h1>
-    <p class="sub">2025년 3월 22일 발화부터 28일 진화까지 · 기상청 면봉산 레이더 S3(저층 연기 기둥 핵) 경보와 GK2A 화재 도달을 5~10분 단위로 다시 봅니다</p>
+    <h1>경북 산불 디지털 트윈</h1>
+    <p class="sub" id="subline">실시간 감시: 기상청 면봉산 레이더·GK2A·AWS를 10분마다 받아 문화유산 경보와 1~3시간 확산 예측을 계산합니다 · 2025년 3월 22~28일 산불 재현</p>
   </div>
   <div class="clock" aria-live="polite"><span class="flag" id="flag" hidden></span><span class="d" id="cd">2025.03.25</span><span class="t" id="ct">11:00</span><span class="kst">KST</span></div>
 </header>
@@ -111,6 +112,36 @@ aside{min-width:0; display:flex; flex-direction:column; gap:10px; overflow:auto}
   </section>
 
   <aside>
+    <div class="card">
+      <h2>자료</h2>
+      <div class="seg">
+        <button id="sLive">실시간 감시</button>
+        <button id="sReplay" class="on">2025년 3월 재현</button>
+      </div>
+      <p class="sub" id="liveinfo" style="margin:8px 0 0"></p>
+    </div>
+    <div class="card">
+      <h2>확산 예측 (모의)</h2>
+      <div class="layers">
+        <label>예측 시간 <select id="fH"><option value="1">1시간</option><option value="2" selected>2시간</option><option value="3">3시간</option></select></label>
+        <label>풍속 배율 <input type="range" id="fW" min="0.5" max="2" step="0.1" value="1" style="flex:1"><b id="fWv" style="font-family:var(--font-num)">1.0×</b></label>
+        <label>풍향 변경 <input type="range" id="fD" min="-45" max="45" step="5" value="0" style="flex:1"><b id="fDv" style="font-family:var(--font-num)">0°</b></label>
+        <label><input type="checkbox" id="lFc" checked> 예측 확산 범위 표시</label>
+      </div>
+      <p class="sub" id="fcinfo" style="margin:8px 0 0"></p>
+    </div>
+    <div class="card">
+      <h2 id="alTitle">경보 단계</h2>
+      <div class="counts" style="grid-template-columns:repeat(4,minmax(0,1fr))">
+        <div class="count" style="--c:var(--fire)"><b id="L3">0</b><span>긴급</span></div>
+        <div class="count" style="--c:var(--alarm)"><b id="L2">0</b><span>경보</span></div>
+        <div class="count" style="--c:var(--watch)"><b id="L1">0</b><span>주의</span></div>
+        <div class="count" style="--c:var(--line)"><b id="L0">0</b><span>정상</span></div>
+      </div>
+      <div class="roll" style="max-height:300px;margin-top:8px"><table>
+        <thead><tr><th>유산</th><th>근거</th><th>권장 조치</th><th>확인</th></tr></thead>
+        <tbody id="alerts"></tbody></table></div>
+    </div>
     <div class="card">
       <h2>보기</h2>
       <div class="seg">
@@ -143,9 +174,11 @@ aside{min-width:0; display:flex; flex-direction:column; gap:10px; overflow:auto}
     <div class="card">
       <h2>범례</h2>
       <div class="legend">
-        <div><span class="sw" style="background:var(--wait)"></span>대기: 레이더 범위 안, 아직 신호 없음</div>
-        <div><span class="sw" style="background:var(--alarm)"></span>S3 경보: 최근 6시간 안에 5 km 안 저층 연기 기둥 핵 (불 도달 전)</div>
-        <div><span class="sw" style="background:var(--fire)"></span>화재 도달: GK2A 화소 2.5 km 안, 2시간 연속</div>
+        <div><span class="sw" style="background:var(--fire)"></span>긴급: 화재 도달(GK2A 2.5 km 안) 또는 1시간 안 도달 예측</div>
+        <div><span class="sw" style="background:var(--alarm)"></span>경보: S3 신호(최근 6시간) 또는 예측 시간 안 도달</div>
+        <div><span class="sw" style="background:var(--watch)"></span>주의: 6시간 안 도달 예측</div>
+        <div><span class="sw" style="background:var(--wait)"></span>정상</div>
+        <div><span class="sw" style="background:#c2185b;opacity:.45;border-color:#c2185b;border-radius:2px"></span>예측 확산 범위 (활성 화점별 바람 타원)</div>
         <div><span class="sw" style="background:transparent;border-color:var(--out)"></span>레이더 분석 범위 밖</div>
         <div><span class="sw" style="background:var(--core);border-radius:1px;border-color:#7a5a00"></span>S3 핵이 있는 1 km 칸</div>
         <div>에코 꼭대기 3 km <span class="bar"></span> 9 km</div>
@@ -165,6 +198,9 @@ aside{min-width:0; display:flex; flex-direction:column; gap:10px; overflow:auto}
     </div>
     <div class="card notes">
       <h2>읽는 법과 한계</h2>
+      <p>실시간 감시: 이 PC가 10분마다 기상청 API(면봉산 레이더, GK2A, AWS)에서 자료를 받아 같은 규칙으로 판정하고 결과 요약을 올리며, 이 페이지는 5분마다 다시 읽습니다. 산불이 없을 때 레이더는 1시간마다 받습니다.</p>
+      <p>확산 예측(모의): 활성 화점(GK2A 1시간, VIIRS 3시간)마다 가장 가까운 AWS 바람으로 바람 방향 타원을 그립니다. 머리 확산 속도 = 0.85 × 풍속(km/h, 2025년 3월 25일 6시간 46.6 km에 맞춤), 타원 비는 Alexander(1985) 식입니다. 지형·연료는 반영하지 않은 간이 예측입니다.</p>
+      <p>경보 단계와 권장 조치는 연구용 예시이며, 조치 확인 표시는 이 브라우저에만 저장됩니다.</p>
       <p>S3 경보: 유산 반경 5 km 안에서 고도 1~2 km에 30 dBZ 이상, 상관계수 0.8 미만이고 에코 꼭대기가 해발 3 km 이상인 반사도 핵이 연속 2개 볼륨에 나타나면 켜지고, 마지막 신호 뒤 6시간 동안 유지됩니다. 비 에코 시간대(24일 06~18시, 27일 15시~28일 02시, 28일 06시 이후)는 판정에서 빠지고, 26일 09:20~15:10은 레이더 자료가 없습니다.</p>
       <p>화재 도달: GK2A 화재 화소 중심이 2.5 km 안에서 2시간 연속 탐지된 첫 관측 시각입니다. 2 km·1시간 해상도라 건물에 불이 닿은 시각이 아닙니다.</p>
       <p>선행시간 = 화재 도달 − S3 경보(도달 6시간 전부터 찾음). 2025년 3월 사건 하나로 정한 기준이며 운영 경보로 검증되지 않았습니다. 피해 보도는 언론 기준입니다.</p>
@@ -234,12 +270,137 @@ function resize(){
 
 // ---------- state ----------
 function state(h){
+  if (src === "live"){ const q = LV && LV.heritage[h.i] || {}, t = nowT();
+    if (q.a1) return "fire"; if (!h.rg) return "out";
+    return q.s3 && t - toMs(q.s3) <= SIX ? "alarm" : "wait"; }
   const t = tms[fi];
   const arrived = h.a1t !== null && h.a1t <= t;
   if (!h.rg) return arrived ? "fire" : "out";
   const alarm = h.lo && h.lo[fi] >= 0 && t - tms[h.lo[fi]] <= SIX;           // S3 signal within the last 6 h
   if (arrived) return "fire";
   return alarm ? "alarm" : "wait";
+}
+
+// ---------- live link ----------
+const LIVE_URL = "https://raw.githubusercontent.com/KounghoonNam/WebGIS_GB_wildFire/data/live/state.json";
+let src = "replay", LV = null, liveTimer = null;
+const nowT = () => src === "live" ? (LV && LV.updated ? toMs(LV.updated) : Date.now()) : tms[fi];
+async function loadLive(){
+  try {
+    const r = await fetch(LIVE_URL + "?t=" + Date.now(), {cache: "no-store"});
+    if (!r.ok) throw new Error(r.status);
+    LV = await r.json(); if (!LV.heritage) LV.heritage = {};
+    for (const k of ["gk2a", "aws", "top", "core"]) if (!LV[k]) LV[k] = [];
+    const radar = LV.radar_time ? `레이더 ${LV.radar_time.slice(5)}` : "레이더 없음";
+    $("liveinfo").textContent = LV.updated ? `갱신 ${LV.updated} KST · ${radar} · GK2A ${LV.gk2a_time ? LV.gk2a_time.slice(5) : "없음"} · AWS ${LV.aws_time ? LV.aws_time.slice(11, 16) : "없음"} · ${LV.mode === "active" ? "산불 감지: 레이더 10분 간격" : "감시: 레이더 1시간 간격"}`
+      : "실시간 연결 준비 중입니다. 첫 자료가 올라오면 자동으로 표시됩니다.";
+  } catch (e) {
+    LV = {heritage: {}, gk2a: [], aws: [], top: [], core: []};
+    $("liveinfo").textContent = "실시간 자료를 불러오지 못했습니다. 인터넷 연결을 확인하거나 GitHub 페이지(kounghoonnam.github.io/WebGIS_GB_wildFire)에서 열어 주세요.";
+  }
+  if (src === "live") refresh();
+}
+function setSource(m){
+  src = m; $("sLive").classList.toggle("on", m === "live"); $("sReplay").classList.toggle("on", m === "replay");
+  document.querySelector(".timeline").hidden = m === "live"; play(false); clearInterval(liveTimer);
+  if (m === "live"){ LV = LV || {heritage: {}, gk2a: [], aws: [], top: [], core: []}; $("liveinfo").textContent = "실시간 자료를 불러오는 중입니다.";
+    refresh(); loadLive(); liveTimer = setInterval(loadLive, 5 * 60000); }
+  else { $("liveinfo").textContent = "2025년 3월 22일 11:00 ~ 28일 17:00 KST, 면봉산 레이더 1,094개 볼륨"; setFrame(fi); }
+}
+function liveRadar(){
+  const ctx = radarCv.getContext("2d"), im = ctx.createImageData(G.nx, G.ny);
+  if (lay.top) for (const [r, c, k1] of LV.top || []){ const hkm = (k1 - 1) * G.dz; if (hkm < 2.5) continue; const c2 = rampAt(hkm), q = (r*G.nx + c)*4;
+    im.data[q]=c2[0]; im.data[q+1]=c2[1]; im.data[q+2]=c2[2]; im.data[q+3]=Math.min(225, 115 + hkm*13); }
+  ctx.putImageData(im, 0, 0);
+}
+function refresh(){
+  if (src === "live"){
+    $("cd").textContent = LV && LV.updated ? LV.updated.slice(0, 10).replaceAll("-", ".") : "–"; $("ct").textContent = LV && LV.updated ? LV.updated.slice(11, 16) : "--:--";
+    $("flag").hidden = false; $("flag").textContent = LV && LV.mode === "active" ? "실시간 · 산불 감지" : "실시간 · 감시 중";
+    liveRadar(); computeForecast(); draw(); updateCounts(); }
+  else setFrame(fi);
+}
+
+// ---------- inputs for forecast and alert levels (same code for live and replay) ----------
+function inputs(){
+  const t = nowT();
+  if (src === "live"){
+    const gt = LV && LV.gk2a_time ? toMs(LV.gk2a_time) : t;
+    return {t, fires: (LV.gk2a || []).filter(g => toMs(g[2]) >= gt - 70*60000).map(g => [g[0], g[1]]),
+            wind: (LV.aws || []).filter(a => a[3] !== null && a[4] !== null).map(a => [a[1], a[2], a[3], a[4]])};
+  }
+  const fires = [];
+  for (const [x,y,tt] of GK) if (tt <= t && tt > t - 3600000) fires.push([x, y]);
+  for (const [x,y,tt] of VI) if (tt <= t && tt > t - 3*3600000) fires.push([x, y]);
+  const hi = Math.floor((t - WN0) / 3600000), wind = [];
+  if (hi >= 0 && hi < WN.spd[0].length) for (let k = 0; k < WN.stations.length; k++){ const v = WN.spd[k][hi], d = WN.dir[k][hi];
+    if (v >= 0 && d >= 0) wind.push([WN.stations[k][1], WN.stations[k][2], v / 10, d]); }
+  return {t, fires, wind};
+}
+
+// ---------- spread forecast: wind-driven ellipses from the active fire points ----------
+// head rate R = K * U (km/h; U = hourly mean wind in m/s at the nearest AWS station x what-if factor), K = 0.85 matches the
+// observed 25 March run (46.6 km in 6 h at about 9 m/s); length-to-breadth LB from Alexander (1985); back rate from the
+// ellipse eccentricity. Arrival time at a site = distance / rate in that direction, minimum over the fire points.
+const K_ROS = 0.85;
+let FC = {pts: [], eta: new Map(), H: 2};
+function computeForecast(){
+  const {fires, wind} = inputs(), ws = +$("fW").value, dd = +$("fD").value;
+  const seen = new Set(), pts = [];
+  for (const [x, y] of fires){ const key = Math.round(x/2) + "," + Math.round(y/2); if (seen.has(key)) continue; seen.add(key);
+    let best = null, bd = 1e9; for (const w of wind){ const d = Math.hypot(w[0]-x, w[1]-y); if (d < bd){ bd = d; best = w; } }
+    const U = best ? best[2] * ws : 0, to = ((best ? best[3] : 0) + 180 + dd) * Math.PI / 180;
+    const R = Math.max(0.3, K_ROS * U), LB = 1 + 8.729 * Math.pow(1 - Math.exp(-0.030 * U * 3.6), 2.155), e = Math.sqrt(1 - 1/(LB*LB));
+    pts.push({x, y, R, LB, e, to, U}); }
+  const eta = new Map();
+  for (const h of H){ let m = Infinity;
+    for (const p of pts){ const dx = h.x - p.x, dy = h.y - p.y, d = Math.hypot(dx, dy); if (d > 45) continue;
+      const th = Math.atan2(dx, dy) - p.to, rate = p.R * (1 - p.e) / (1 - p.e * Math.cos(th)); m = Math.min(m, d / rate); }
+    if (m < Infinity) eta.set(h.i, m); }
+  FC = {pts, eta, H: +$("fH").value};
+  $("fWv").textContent = ws.toFixed(1) + "×"; $("fDv").textContent = (dd > 0 ? "+" : "") + dd + "°";
+  const maxU = pts.reduce((a, p) => Math.max(a, p.U), 0);
+  $("fcinfo").textContent = pts.length ? `활성 화점 ${pts.length}개(2 km 묶음) · 최대 적용 풍속 ${maxU.toFixed(1)} m/s · 머리 확산 ${(K_ROS*maxU).toFixed(1)} km/h`
+    : "현재 활성 화점이 없어 예측할 확산이 없습니다.";
+}
+function drawForecast(){
+  if (!$("lFc").checked || !FC.pts.length) return;
+  const off = document.createElement("canvas"), r = window.devicePixelRatio || 1; off.width = cv.width; off.height = cv.height;
+  const o = off.getContext("2d"); o.setTransform(r, 0, 0, r, 0, 0); o.fillStyle = "#c2185b";
+  for (const p of FC.pts){ const head = p.R * FC.H, back = head * (1 - p.e) / (1 + p.e), a = (head + back) / 2, b = a / p.LB, c = head - a;
+    const cxk = p.x + c * Math.sin(p.to), cyk = p.y + c * Math.cos(p.to);
+    o.beginPath(); o.ellipse(X(cxk), Y(cyk), Math.max(1, b * view.s), Math.max(1, a * view.s), p.to, 0, 7); o.fill(); }
+  cx.save(); cx.setTransform(1, 0, 0, 1, 0, 0); cx.globalAlpha = 0.28; cx.drawImage(off, 0, 0); cx.restore();
+}
+
+// ---------- alert levels and recommended actions ----------
+const ACT = {3: "인원 대피·출입 통제, 소방 방어선·살수", 2: "방염포 설치, 동산 유산 이송 준비, 주변 가연물 제거", 1: "상황 감시, 비상연락망·이송 장비 점검"};
+function level(h){
+  const st = state(h), eta = FC.eta.get(h.i);
+  if (st === "fire") return [3, "화재 도달"];
+  if (eta !== undefined && eta <= 1) return [3, `예상 도달 ${Math.round(eta*60)}분`];
+  if (st === "alarm") return [2, "S3 연기 기둥 핵"];
+  if (eta !== undefined && eta <= FC.H) return [2, `예상 도달 ${eta.toFixed(1)}시간`];
+  if (eta !== undefined && eta <= 6) return [1, `예상 도달 ${eta.toFixed(1)}시간`];
+  return [0, ""];
+}
+const ackKey = h => "ack:" + h.n + ":" + h.x;
+function ackGet(h){ try { return localStorage.getItem(ackKey(h)) === "1"; } catch (_) { return false; } }
+function ackSet(h, v){ try { localStorage.setItem(ackKey(h), v ? "1" : "0"); } catch (_) {} }
+function buildAlerts(){
+  const L = [0, 0, 0, 0], rows = [];
+  for (const h of shown()){ const [lv, why] = level(h); L[lv]++; if (lv > 0) rows.push([h, lv, why]); }
+  for (let k = 0; k < 4; k++) $("L" + k).textContent = L[k];
+  $("alTitle").textContent = `경보 단계 · ${mode === "path" ? "산불 경로 유산" : "경북 전체 유산"}`;
+  rows.sort((a, b) => b[1] - a[1] || (FC.eta.get(a[0].i) ?? 99) - (FC.eta.get(b[0].i) ?? 99));
+  const C = {3: "var(--fire)", 2: "var(--alarm)", 1: "var(--watch)"}, N = {3: "긴급", 2: "경보", 1: "주의"};
+  $("alerts").innerHTML = rows.slice(0, 120).map(([h, lv, why]) => `<tr data-i="${h.i}"><td><span class="pill" style="--c:${C[lv]}">${N[lv]}</span> ${h.n}<br><span style="color:var(--muted);font-size:11px">${h.k} · ${h.s}</span></td>
+    <td style="font-size:12px">${why}</td><td style="font-size:12px">${ACT[lv]}</td><td><input type="checkbox" aria-label="조치 확인" ${ackGet(h) ? "checked" : ""}></td></tr>`).join("")
+    + (rows.length > 120 ? `<tr><td colspan="4" style="color:var(--muted)">외 ${rows.length - 120}건</td></tr>` : "")
+    + (rows.length ? "" : `<tr><td colspan="4" style="color:var(--muted)">경보 대상 유산이 없습니다.</td></tr>`);
+  for (const tr of $("alerts").querySelectorAll("tr[data-i]")){ const h = H[+tr.dataset.i], cb = tr.querySelector("input");
+    cb.onclick = e => e.stopPropagation(); cb.onchange = e => ackSet(h, e.target.checked);
+    tr.onclick = () => select(h.i, true); }
 }
 function outcome(h){            // for arrivals inside the replay window
   if (!h.rg || h.a1t === null || h.a1t < tms[0] || h.a1t > tms[NF-1]) return null;
@@ -267,32 +428,31 @@ function draw(){
   cx.imageSmoothingEnabled = true;
   if (lay.core){
     cx.fillStyle = css("--core"); cx.strokeStyle = "#7a5a00"; cx.lineWidth = 0.8;
-    for (let r = 0; r < G.ny; r++) for (let c = 0; c < G.nx; c++){
-      if (spriteData[px(fi, r, c) + 1] > 0){ const x = X(G.x0 + c), y = Y(G.y1 - r), s = view.s;
-        cx.fillRect(x, y, s, s); cx.strokeRect(x, y, s, s); }
-    }
+    const cell = (r, c) => { const x = X(G.x0 + c), y = Y(G.y1 - r), s = view.s; cx.fillRect(x, y, s, s); cx.strokeRect(x, y, s, s); };
+    if (src === "live") for (const [r, c] of LV && LV.core || []) cell(r, c);
+    else for (let r = 0; r < G.ny; r++) for (let c = 0; c < G.nx; c++) if (spriteData[px(fi, r, c) + 1] > 0) cell(r, c);
   }
+  drawForecast();
   cx.setLineDash([5,4]); cx.strokeStyle = css("--map-ink"); cx.lineWidth = 1;
   cx.strokeRect(X(G.x0), Y(G.y1), view.s*(G.x1-G.x0), view.s*(G.y1-G.y0)); cx.setLineDash([]);
   // GK2A
   if (lay.gk){
-    const t = tms[fi], h0 = t - (t % 3600000);
-    for (const [x,y,tt] of GK){ if (tt > t) continue; const cur = tt >= h0 - 0; cx.fillStyle = cur ? "rgba(255,59,31,0.95)" : "rgba(160,40,30,0.28)";
+    const t = nowT(), h0 = src === "live" && LV && LV.gk2a_time ? toMs(LV.gk2a_time) - 3600000 + 1 : t - (t % 3600000);
+    const GKS = src === "live" ? (LV && LV.gk2a || []).map(g => [g[0], g[1], toMs(g[2])]) : GK;
+    for (const [x,y,tt] of GKS){ if (tt > t) continue; const cur = tt >= h0 - 0; cx.fillStyle = cur ? "rgba(255,59,31,0.95)" : "rgba(160,40,30,0.28)";
       const r = cur ? Math.max(2.2, view.s*0.9) : Math.max(1.4, view.s*0.7); cx.beginPath(); cx.arc(X(x), Y(y), r, 0, 7); cx.fill(); }
   }
   // VIIRS: overpasses in the last 3 h bright, earlier ones faint
-  if (lay.vi){
+  if (lay.vi && src === "replay"){
     const t = tms[fi], w3 = 3 * 3600000;
     for (const [x,y,tt] of VI){ if (tt > t) continue; const cur = t - tt <= w3; const r = Math.max(cur ? 1.6 : 1.1, view.s * 0.19);
       cx.fillStyle = cur ? "rgba(0,166,200,0.95)" : "rgba(0,110,135,0.22)"; cx.fillRect(X(x) - r, Y(y) - r, 2*r, 2*r); }
   }
   // AWS hourly wind: arrow toward the downwind side, length and colour by speed (screen units, independent of zoom)
   if (lay.wind){
-    const hi = Math.floor((tms[fi] - WN0) / 3600000);
-    if (hi >= 0 && hi < WN.spd[0].length){
-      for (let k = 0; k < WN.stations.length; k++){
-        const v = WN.spd[k][hi], d = WN.dir[k][hi]; if (v < 0 || d < 0) continue;
-        const ms = v / 10, [, x, y] = WN.stations[k], L = 7 + ms * 3.2, a = (d + 180) * Math.PI / 180;
+    {
+      for (const [x, y, ms, d] of inputs().wind){
+        const L = 7 + ms * 3.2, a = (d + 180) * Math.PI / 180;
         const x0 = X(x), y0 = Y(y), x1 = x0 + L * Math.sin(a), y1 = y0 - L * Math.cos(a);
         const c = ms < 3 ? "#2c7fb8" : ms < 6 ? "#41ab5d" : ms < 9 ? "#e6550d" : "#a50f15";
         cx.strokeStyle = css("--panel"); cx.lineWidth = 4; cx.beginPath(); cx.moveTo(x0, y0); cx.lineTo(x1, y1); cx.stroke();
@@ -311,16 +471,16 @@ function draw(){
   cx.fillRect(X(rx)-5, Y(ry)-1.5, 10, 3); cx.fillRect(X(rx)-1.5, Y(ry)-5, 3, 10);
   cx.textAlign = "left"; cx.strokeText("면봉산 레이더", X(rx)+8, Y(ry)+4); cx.fillText("면봉산 레이더", X(rx)+8, Y(ry)+4);
   // heritage
-  const col = {wait: css("--wait"), alarm: css("--alarm"), fire: css("--fire"), out: "transparent"};
+  const LC = [css("--wait"), css("--watch"), css("--alarm"), css("--fire")];
   const list = shown(), big = mode === "path";
-  const order = {out: 0, wait: 1, alarm: 2, fire: 3};
-  const items = list.map(h => [h, state(h)]).sort((a,b) => order[a[1]] - order[b[1]] || a[0].p - b[0].p);
-  for (const [h, st] of items){
+  const items = list.map(h => [h, state(h), level(h)[0]]).sort((a,b) => a[2] - b[2] || a[0].p - b[0].p);
+  for (const [h, st, lv] of items){
     const r = (h.p ? (big ? 5 : 4) : 2.6) * Math.min(1.8, Math.max(1, view.s / 4));
+    const hollow = st === "out" && lv === 0;
     cx.beginPath(); cx.arc(X(h.x), Y(h.y), r, 0, 7);
-    cx.fillStyle = col[st]; if (st !== "out") cx.fill();
-    cx.lineWidth = h.p ? 1.3 : 0.8; cx.strokeStyle = st === "out" ? css("--out") : css("--map-ink"); cx.stroke();
-    if (h.on && h.on[fi] === "1" && st !== "fire"){ cx.beginPath(); cx.arc(X(h.x), Y(h.y), r + 3, 0, 7); cx.strokeStyle = css("--alarm"); cx.lineWidth = 1.2; cx.stroke(); }
+    cx.fillStyle = LC[lv]; if (!hollow) cx.fill();
+    cx.lineWidth = h.p ? 1.3 : 0.8; cx.strokeStyle = hollow ? css("--out") : css("--map-ink"); cx.stroke();
+    if (src === "replay" && h.on && h.on[fi] === "1" && st !== "fire"){ cx.beginPath(); cx.arc(X(h.x), Y(h.y), r + 3, 0, 7); cx.strokeStyle = css("--alarm"); cx.lineWidth = 1.2; cx.stroke(); }
   }
   if (sel !== null){ const h = H[sel]; cx.beginPath(); cx.arc(X(h.x), Y(h.y), 11, 0, 7); cx.strokeStyle = css("--accent"); cx.lineWidth = 2.5; cx.stroke();
     cx.font = "700 12px " + css("--font-ui"); cx.textAlign = "left"; cx.lineWidth = 3; cx.strokeStyle = css("--panel"); cx.fillStyle = css("--ink");
@@ -330,6 +490,13 @@ function draw(){
 // ---------- side panel ----------
 const fmtT = ms => { const d = new Date(ms + 9*3600000); return `${d.getUTCMonth()+1}.${d.getUTCDate()} ${String(d.getUTCHours()).padStart(2,"0")}:${String(d.getUTCMinutes()).padStart(2,"0")}`; };
 function updateCounts(){
+  buildAlerts();
+  if (src === "live"){ let a = 0, f = 0; for (const h of shown()){ const s = state(h); if (s === "alarm") a++; if (s === "fire") f++; }
+    $("kAlarm").textContent = a; $("kFire").textContent = f; $("kHit").textContent = "–"; $("kMiss").textContent = "–";
+    const w = inputs().wind.reduce((b, x) => x[2] > b ? x[2] : b, -1);
+    const g = (LV && LV.aws || []).reduce((b, x) => x[5] !== null && x[5] > b ? x[5] : b, -1);
+    $("windline").textContent = w >= 0 ? `AWS 최대 1시간 평균 풍속 ${w.toFixed(1)} m/s${g >= 0 ? `, 최대 순간풍속 ${g.toFixed(1)} m/s` : ""}` : "AWS 자료 없음";
+    $("cntTitle").textContent = (mode === "path" ? "산불 경로 유산" : "경북 전체 유산") + " · 실시간"; return; }
   const list = shown(); let a = 0, f = 0, hit = 0, miss = 0;
   for (const h of list){ const s = state(h); if (s === "alarm") a++; if (s === "fire") f++;
     const o = outcome(h); if (o && h.a1t <= tms[fi]){ if (o === "hit") hit++; else miss++; } }
@@ -395,11 +562,11 @@ function setFrame(k){
   const gap = (fi > 0 && tms[fi] - tms[fi-1] > 1800000) || (fi < NF-1 && tms[fi+1] - tms[fi] > 1800000);
   const flag = D.rain[fi] ? "비 에코 · 판정 제외" : gap ? "레이더 자료 공백 (26일 09:20~15:10)" : "";
   $("flag").hidden = !flag; $("flag").textContent = flag;
-  buildRadar(); draw(); updateCounts(); drawSpark();
+  buildRadar(); computeForecast(); draw(); updateCounts(); drawSpark();
 }
 function setMode(m){
   mode = m; $("mPath").classList.toggle("on", m === "path"); $("mAll").classList.toggle("on", m === "all");
-  computeSeries(); buildRoll(); setFrame(fi);
+  computeSeries(); buildRoll(); refresh();
 }
 function play(on){
   playing = on; $("play").textContent = on ? "❚❚ 정지" : "▶ 재생"; clearInterval(timer);
@@ -452,7 +619,9 @@ $("slider").addEventListener("input", e => { play(false); setFrame(+e.target.val
 $("play").onclick = () => play(!playing);
 $("speed").onchange = () => { if (playing) play(true); };
 $("mPath").onclick = () => setMode("path"); $("mAll").onclick = () => setMode("all");
-for (const [id, k] of [["lTop","top"],["lCore","core"],["lGk","gk"],["lVi","vi"],["lWind","wind"],["lDnbr","dnbr"],["lBurn","burn"]]) $(id).onchange = e => { lay[k] = e.target.checked; buildRadar(); draw(); };
+$("sLive").onclick = () => setSource("live"); $("sReplay").onclick = () => setSource("replay");
+for (const id of ["fH", "fW", "fD", "lFc"]) $(id).addEventListener("input", () => { computeForecast(); draw(); updateCounts(); });
+for (const [id, k] of [["lTop","top"],["lCore","core"],["lGk","gk"],["lVi","vi"],["lWind","wind"],["lDnbr","dnbr"],["lBurn","burn"]]) $(id).onchange = e => { lay[k] = e.target.checked; if (src === "live") liveRadar(); else buildRadar(); draw(); };
 document.addEventListener("keydown", e => { if (e.target.tagName === "INPUT" && e.target.type !== "range") return;
   if (e.key === " "){ e.preventDefault(); play(!playing); } if (e.key === "ArrowRight") setFrame(fi+1); if (e.key === "ArrowLeft") setFrame(fi-1); });
 matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { drawSpark(); draw(); });
@@ -472,6 +641,7 @@ new MutationObserver(() => { drawSpark(); draw(); }).observe(document.documentEl
   spriteData = sctx.getImageData(0, 0, c.width, c.height).data;
   window.addEventListener("resize", () => { resize(); drawSpark(); });
   resize(); buildTicks(); computeSeries(); buildRoll();
-  setFrame(tms.findIndex(t => t >= new Date("2025-03-25T15:30:00+09:00").getTime()));
+  fi = tms.findIndex(t => t >= new Date("2025-03-25T15:30:00+09:00").getTime());
+  setSource("replay");
 })();
 </script>
