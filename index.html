@@ -104,6 +104,7 @@ aside{min-width:0; display:flex; flex-direction:column; gap:10px; overflow:auto}
     <div class="mapnote" id="mapnote">점선 사각형 = 레이더 분석 범위. 범위 밖 유산은 회색 빈 원. 끌어서 이동, 휠·두 손가락으로 확대, 유산을 누르면 정보가 뜹니다.</div>
     <div class="zoom"><button id="zin" aria-label="확대">+</button><button id="zout" aria-label="축소">−</button><button id="zreset" aria-label="경북 보기" title="경북 보기">경북</button><button id="zkr" aria-label="전국 보기" title="전국 보기">전국</button>
       <button id="z3d" aria-label="3D 보기로 전환" title="3D 보기">3D</button>
+      <select id="pl3d" class="ex3d" aria-label="연기 기둥 표현" title="연기 기둥 표현" hidden><option value="vox" selected>층별</option><option value="col">기둥</option></select>
       <select id="ex3d" class="ex3d" aria-label="높이 과장" title="높이 과장" hidden><option value="1">×1</option><option value="2">×2</option><option value="3" selected>×3</option><option value="5">×5</option></select></div>
     <div id="tip" hidden></div>
     <div class="timeline">
@@ -640,7 +641,31 @@ matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { dr
 new MutationObserver(() => { drawSpark(); draw(); }).observe(document.documentElement, {attributes: true, attributeFilter: ["data-theme"]});
 
 // ---------- 3D view (three.js): terrain mesh with a painted texture, radar plume columns, S3 cores, heritage pins ----------
-const TR = {"ext":[380.0,580.0,3925.0,4125.0],"nx":400,"ny":400,"tex":[1600,1600],"zmax":1519.430908203125}, TEXW = 2048;
+const TR = {"ext":[380.0,580.0,3925.0,4125.0],"nx":400,"ny":400,"tex":[1600,1600],"zmax":1519.430908203125}, TEXW = 2048, VOLIDX = {"chunks": [{"file": "vol/vol_20250322.bin.gz", "f0": 0, "f1": 154}, {"file": "vol/vol_20250323.bin.gz", "f0": 155, "f1": 334}, {"file": "vol/vol_20250324.bin.gz", "f0": 335, "f1": 478}, {"file": "vol/vol_20250325.bin.gz", "f0": 479, "f1": 700}, {"file": "vol/vol_20250326.bin.gz", "f0": 701, "f1": 846}, {"file": "vol/vol_20250327.bin.gz", "f0": 847, "f1": 990}, {"file": "vol/vol_20250328.bin.gz", "f0": 991, "f1": 1093}]};
+// layered radar volume: one gzip file per day, each voxel one uint32 (column 14 bits, level 5 bits, dBZ-15 7 bits, smoke 1 bit)
+const volCache = new Map(); let liveVox = null, liveVoxKey = null, volMsg = "";
+function volFor(f){
+  const ch = VOLIDX.chunks.find(c => f >= c.f0 && f <= c.f1); if (!ch) return null;
+  let e = volCache.get(ch.file);
+  if (!e){ e = {ready: false}; volCache.set(ch.file, e);
+    (async () => { try {
+      if (!("DecompressionStream" in window)) throw new Error("이 브라우저는 압축 해제를 지원하지 않습니다");
+      const r = await fetch(ch.file); if (!r.ok) throw new Error("파일 " + r.status);
+      const buf = await new Response(r.body.pipeThrough(new DecompressionStream("gzip"))).arrayBuffer(), u = new Uint32Array(buf), nf = u[0];
+      const off = new Uint32Array(nf + 1); for (let i = 0; i < nf; i++) off[i + 1] = off[i] + u[1 + i];
+      Object.assign(e, {ready: true, data: u.subarray(1 + nf), off, f0: ch.f0}); volMsg = "";
+    } catch (err) { e.failed = true; volMsg = "층별 레이더 자료를 불러오지 못했습니다 (" + err.message + "). 기둥 표현으로 봅니다."; }
+      if (is3d) update3d(); })();
+  }
+  if (!e.ready) return e.failed ? null : "loading";
+  const k = f - e.f0; return e.data.subarray(e.off[k], e.off[k + 1]);
+}
+function voxNow(){
+  if (src === "live"){ if (!LV || !LV.vox) return null;
+    if (liveVoxKey !== LV.updated){ const b = atob(LV.vox), a = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) a[i] = b.charCodeAt(i);
+      liveVox = new Uint32Array(a.buffer); liveVoxKey = LV.updated; } return liveVox; }
+  return volFor(fi);
+}
 let is3d = false, T3 = null;
 function elevKm(x, y){                                   // nearest 500 m terrain cell, km ASL
   if (!T3) return 0; const c = Math.round((x - TR.ext[0]) / (TR.ext[1] - TR.ext[0]) * (TR.nx - 1)), r = Math.round((TR.ext[3] - y) / (TR.ext[3] - TR.ext[2]) * (TR.ny - 1));
@@ -670,9 +695,13 @@ async function init3d(){
   for (const m of [plume, cores, pins]){ m.instanceMatrix.setUsage(THREE.DynamicDrawUsage); scene.add(m); }
   plume.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(N * 3), 3);
   pins.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(H.length * 3), 3);
+  const VCAP = 30000, vbox = new THREE.BoxGeometry(1, 0.5, 1);
+  const voxW = new THREE.InstancedMesh(vbox, new THREE.MeshBasicMaterial({transparent: true, opacity: 0.13, depthWrite: false}), VCAP);
+  const voxS = new THREE.InstancedMesh(vbox, new THREE.MeshBasicMaterial({transparent: true, opacity: 0.55, depthWrite: false}), VCAP);
+  for (const v of [voxW, voxS]){ v.instanceMatrix.setUsage(THREE.DynamicDrawUsage); v.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(VCAP * 3), 3); v.count = 0; scene.add(v); }
   const radarPin = new THREE.Mesh(new THREE.ConeGeometry(1.2, 4, 4), new THREE.MeshLambertMaterial({color: 0x222222})); scene.add(radarPin);
   const controls = new THREE.OrbitControls(camera, renderer.domElement); controls.enableDamping = true; controls.maxPolarAngle = Math.PI * 0.49;
-  T3 = {renderer, scene, camera, controls, texCv, tex, tImg, geo, terrain, plume, cores, pins, radarPin, hgt, W3, ex: +$("ex3d").value, pinList: []};
+  T3 = {renderer, scene, camera, controls, texCv, tex, tImg, geo, terrain, plume, cores, pins, radarPin, hgt, W3, ex: +$("ex3d").value, pinList: [], voxW, voxS, VCAP};
   setEx(T3.ex); home3d();
   const ro = new ResizeObserver(() => { const w = el.clientWidth, h = el.clientHeight; if (!w || !h) return; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); });
   ro.observe(el);
@@ -726,17 +755,32 @@ function paintTex(){
 function update3d(){
   if (!T3) return; paintTex();
   const m = new THREE.Matrix4(), col = new THREE.Color(), ex = T3.ex; let n = 0, nc = 0;
+  const V = $("pl3d").value === "vox" && lay.top ? voxNow() : null, useCol = !V || V === "loading";   // columns while loading or unavailable
   const topAt = src === "live" ? (() => { const a = new Int8Array(G.nx * G.ny); for (const [r, c, k1] of LV && LV.top || []) a[r * G.nx + c] = k1; return (r, c) => a[r * G.nx + c]; })()
                                 : (r, c) => spriteData[px(fi, r, c)];
   const coreSet = src === "live" ? new Set((LV && LV.core || []).map(([r, c]) => r * G.nx + c)) : null;
   for (let r = 0; r < G.ny; r++) for (let c = 0; c < G.nx; c++){
     const x = G.x0 + c + 0.5, y = G.y1 - r - 0.5, gz = elevKm(x, y);
     const k1 = topAt(r, c), top = (k1 - 1) * G.dz + G.dz;
-    if (lay.top && k1 > 0 && top - G.dz >= 2.5 && top > gz){ const hgt = top - gz; m.makeScale(1, hgt * ex, 1).setPosition(T3.W3(x, y, gz + hgt / 2));
+    if (lay.top && useCol && k1 > 0 && top - G.dz >= 2.5 && top > gz){ const hgt = top - gz; m.makeScale(1, hgt * ex, 1).setPosition(T3.W3(x, y, gz + hgt / 2));
       T3.plume.setMatrixAt(n, m); const cc = rampAt(top - G.dz); col.setRGB(cc[0] / 255, cc[1] / 255, cc[2] / 255); T3.plume.setColorAt(n, col); n++; }
     const isCore = src === "live" ? coreSet.has(r * G.nx + c) : spriteData[px(fi, r, c) + 1] > 0;
     if (lay.core && isCore){ m.makeScale(1, 1 * ex, 1).setPosition(T3.W3(x, y, 1.5)); T3.cores.setMatrixAt(nc++, m); }
   }
+  // layered volume replaces the top-height columns when available
+  T3.voxW.count = 0; T3.voxS.count = 0;
+  if (!useCol){ let nw = 0, ns = 0;
+    for (let i = 0; i < V.length; i++){ const v = V[i], idx = v & 0x3fff, lev = (v >>> 14) & 31, dbz = 15 + ((v >>> 19) & 127), smoke = (v >>> 26) & 1;
+      const r = Math.floor(idx / G.nx), c = idx % G.nx, x = G.x0 + c + 0.5, y = G.y1 - r - 0.5, z = (lev + 0.5) * 0.5;
+      if (z < elevKm(x, y)) continue;
+      const strong = dbz >= 30, mesh = strong ? T3.voxS : T3.voxW, k = strong ? ns : nw; if (k >= T3.VCAP) continue;
+      m.makeScale(1, ex, 1).setPosition(T3.W3(x, y, z)); mesh.setMatrixAt(k, m);
+      if (smoke){ const cc = dbz >= 45 ? [43, 15, 94] : dbz >= 35 ? [91, 63, 166] : dbz >= 25 ? [155, 138, 208] : [205, 196, 236]; col.setRGB(cc[0]/255, cc[1]/255, cc[2]/255); }
+      else col.setRGB(0.42, 0.68, 0.84);                                            // rhoHV >= 0.8: rain / cloud
+      mesh.setColorAt(k, col); if (strong) ns++; else nw++; }
+    T3.voxW.count = nw; T3.voxS.count = ns;
+    for (const v of [T3.voxW, T3.voxS]){ v.instanceMatrix.needsUpdate = true; v.instanceColor.needsUpdate = true; } }
+  if (is3d) $("mapnote").textContent = volMsg || (V === "loading" ? "층별 레이더 자료를 불러오는 중입니다." : $("mapnote").dataset.n3d);
   T3.plume.count = n; T3.cores.count = nc; T3.plume.instanceMatrix.needsUpdate = true; T3.cores.instanceMatrix.needsUpdate = true;
   if (T3.plume.instanceColor) T3.plume.instanceColor.needsUpdate = true;
   const LCc = [css("--wait"), css("--watch"), css("--alarm"), css("--fire")]; let np = 0; T3.pinList = [];
@@ -748,14 +792,16 @@ function update3d(){
 }
 async function toggle3d(){
   is3d = !is3d; $("z3d").textContent = is3d ? "2D" : "3D"; $("z3d").title = is3d ? "2D 보기" : "3D 보기";
-  cv.hidden = is3d; $("view3d").hidden = !is3d; $("ex3d").hidden = !is3d; $("tip").hidden = true;
+  cv.hidden = is3d; $("view3d").hidden = !is3d; $("ex3d").hidden = !is3d; $("pl3d").hidden = !is3d; $("tip").hidden = true;
   for (const id of ["zin", "zout", "zkr"]) $(id).hidden = is3d;
-  $("mapnote").textContent = is3d ? "3D: 끌어서 회전, 오른쪽 끌기·두 손가락으로 이동, 휠로 확대. 기둥 = 레이더 연기 기둥(15 dBZ 꼭대기까지), 노란 상자 = S3 저층 핵(해발 1~2 km), 막대 = 문화유산(색 = 경보 단계)."
+  $("mapnote").dataset.n3d = "3D: 끌어서 회전, 오른쪽 끌기·두 손가락으로 이동, 휠로 확대. 층별 = 레이더 1 km×1 km×500 m 칸(15 dBZ 이상, 보라 = 연기·재, 하늘색 = 비·구름, 진할수록 강함), 노란 상자 = S3 저층 핵, 막대 = 문화유산(색 = 경보 단계).";
+  $("mapnote").textContent = is3d ? $("mapnote").dataset.n3d
     : "점선 사각형 = 레이더 분석 범위. 범위 밖 유산은 회색 빈 원. 끌어서 이동, 휠·두 손가락으로 확대, 유산을 누르면 정보가 뜹니다.";
   if (is3d){ await init3d(); update3d(); } else { resize(); draw(); }
 }
 $("z3d").onclick = toggle3d;
 $("ex3d").onchange = e => setEx(+e.target.value);
+$("pl3d").onchange = () => update3d();
 $("zreset").addEventListener("click", () => { if (is3d && T3) home3d(); });
 
 // ---------- boot ----------
