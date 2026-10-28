@@ -302,6 +302,7 @@ async function loadLive(){
     const radar = LV.radar_time ? `레이더 ${LV.radar_time.slice(5)}` : "레이더 없음";
     $("liveinfo").textContent = LV.updated ? `갱신 ${LV.updated} KST · ${radar} · GK2A ${LV.gk2a_time ? LV.gk2a_time.slice(5) : "없음"} · AWS ${LV.aws_time ? LV.aws_time.slice(11, 16) : "없음"} · ${LV.mode === "active" ? "산불 감지: 레이더 10분 간격" : "감시: 레이더 1시간 간격"}`
       : "실시간 연결 준비 중입니다. 첫 자료가 올라오면 자동으로 표시됩니다.";
+    if (LV.status_msg) $("liveinfo").textContent += " · " + LV.status_msg + (LV.status === "paused" && LV.paused_at ? ` (${LV.paused_at.slice(11)}부터)` : "");
   } catch (e) {
     LV = {heritage: {}, gk2a: [], aws: [], top: [], core: []};
     $("liveinfo").textContent = "실시간 자료를 불러오지 못했습니다. 인터넷 연결을 확인하거나 GitHub 페이지(kounghoonnam.github.io/WebGIS_GB_wildFire)에서 열어 주세요.";
@@ -324,7 +325,8 @@ function liveRadar(){
 function refresh(){
   if (src === "live"){
     $("cd").textContent = LV && LV.updated ? LV.updated.slice(0, 10).replaceAll("-", ".") : "–"; $("ct").textContent = LV && LV.updated ? LV.updated.slice(11, 16) : "--:--";
-    $("flag").hidden = false; $("flag").textContent = LV && LV.mode === "active" ? "실시간 · 산불 감지" : "실시간 · 감시 중";
+    $("flag").hidden = false; $("flag").textContent = LV && LV.status === "paused" ? "실시간 · 갱신 중지(API 한도)" : LV && LV.status === "partial" ? "실시간 · 일부 자료 없음"
+      : LV && LV.mode === "active" ? "실시간 · 산불 감지" : "실시간 · 감시 중";
     liveRadar(); computeForecast(); draw(); updateCounts(); }
   else setFrame(fi);
 }
