@@ -12,7 +12,7 @@
 :root{
   --bg:#eef1f2; --panel:#ffffff; --ink:#1d2528; --muted:#5f6b70; --line:#d5dcdf; --accent:#1f6f78;
   --sea:#c9dbe3; --map-ink:#3b464a; --sgg:#2a2f45;
-  --wait:#f7f9f9; --watch:#e9d66b; --alarm:#e3a21a; --fire:#c8372d; --miss:#6e1d18; --out:#a8b2b6; --core:#ffcf3f;
+  --wait:#f7f9f9; --notice:#5b9bd5; --watch:#e9d66b; --alarm:#e3a21a; --fire:#c8372d; --miss:#6e1d18; --out:#a8b2b6; --core:#ffcf3f;
   --font-ui:"IBM Plex Sans KR","Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;
   --font-num:"IBM Plex Mono",ui-monospace,"Consolas",monospace;
 }
@@ -140,10 +140,11 @@ aside{min-width:0; display:flex; flex-direction:column; gap:10px; overflow:auto}
     </div>
     <div class="card">
       <h2 id="alTitle">경보 단계</h2>
-      <div class="counts" style="grid-template-columns:repeat(4,minmax(0,1fr))">
-        <div class="count" style="--c:var(--fire)"><b id="L3">0</b><span>긴급</span></div>
-        <div class="count" style="--c:var(--alarm)"><b id="L2">0</b><span>경보</span></div>
-        <div class="count" style="--c:var(--watch)"><b id="L1">0</b><span>주의</span></div>
+      <div class="counts" style="grid-template-columns:repeat(5,minmax(0,1fr))">
+        <div class="count" style="--c:var(--fire)"><b id="L4">0</b><span>긴급</span></div>
+        <div class="count" style="--c:var(--alarm)"><b id="L3">0</b><span>경보</span></div>
+        <div class="count" style="--c:var(--watch)"><b id="L2">0</b><span>주의</span></div>
+        <div class="count" style="--c:var(--notice)"><b id="L1">0</b><span>관심</span></div>
         <div class="count" style="--c:var(--line)"><b id="L0">0</b><span>정상</span></div>
       </div>
       <div class="roll" style="max-height:300px;margin-top:8px"><table>
@@ -183,8 +184,9 @@ aside{min-width:0; display:flex; flex-direction:column; gap:10px; overflow:auto}
       <h2>범례</h2>
       <div class="legend">
         <div><span class="sw" style="background:var(--fire)"></span>긴급: 화재 도달(GK2A 2.5 km 안) 또는 1시간 안 도달 예측</div>
-        <div><span class="sw" style="background:var(--alarm)"></span>경보: S3 신호(최근 6시간) 또는 예측 시간 안 도달</div>
-        <div><span class="sw" style="background:var(--watch)"></span>주의: 6시간 안 도달 예측</div>
+        <div><span class="sw" style="background:var(--alarm)"></span>경보: S3 연기 기둥 핵(8 km 안, 최근 6시간) 또는 예측 시간 안 도달</div>
+        <div><span class="sw" style="background:var(--watch)"></span>주의: 레이더 깊은 연기 기둥(5 km 안, 에코 꼭대기 3.5 km 이상) 또는 6시간 안 도달 예측</div>
+        <div><span class="sw" style="background:var(--notice)"></span>관심: GK2A 화점 20 km 안(최근 2시간)</div>
         <div><span class="sw" style="background:var(--wait)"></span>정상</div>
         <div><span class="sw" style="background:#c2185b;opacity:.45;border-color:#c2185b;border-radius:2px"></span>예측 확산 범위 (활성 화점별 바람 타원)</div>
         <div><span class="sw" style="background:transparent;border-color:var(--out)"></span>레이더 분석 범위 밖</div>
@@ -205,10 +207,11 @@ aside{min-width:0; display:flex; flex-direction:column; gap:10px; overflow:auto}
         <tbody id="roll"></tbody></table></div>
     </div>
     <div class="card notes">
-      <h2>읽는 법과 한계</h2>
+      <h2>유의 사항</h2>
       <p>실시간 감시: 이 PC가 10분마다 기상청 API(면봉산 레이더, GK2A, AWS)에서 자료를 받아 같은 규칙으로 판정하고 결과 요약을 올리며, 이 페이지는 5분마다 다시 읽습니다. 산불이 없을 때 레이더는 1시간마다 받습니다.</p>
       <p>확산 예측(모의): 활성 화점(GK2A 1시간, VIIRS 3시간)마다 가장 가까운 AWS 바람으로 바람 방향 타원을 그립니다. 머리 확산 속도 = 0.85 × 풍속(km/h, 2025년 3월 25일 6시간 46.6 km에 맞춤), 타원 비는 Alexander(1985) 식입니다. 지형·연료는 반영하지 않은 간이 예측입니다.</p>
       <p>경보 단계와 권장 조치는 연구용 예시이며, 조치 확인 표시는 이 브라우저에만 저장됩니다.</p>
+      <p>경보 4단계(관심·주의·경보·긴급): 관심 = GK2A 화점이 20 km 안에서 최근 2시간 안에 탐지됨(레이더를 10분 간격으로 받기 시작하는 조건과 같음). 주의 = 레이더 15 dBZ 에코 꼭대기 3.5 km 이상인 깊은 연기 기둥이 5 km 안에 있음 또는 6시간 안 도달 예측. 경보 = S3 핵 또는 예측 시간 안 도달. 긴급 = 화재 도달 또는 1시간 안 도달 예측. 관심과 주의의 연기 기둥 조건은 오경보가 많은 넓은 지역 예비 신호입니다.</p>
       <p>S3 경보: 유산 반경 8 km 안에서 고도 1~2 km에 30 dBZ 이상, 상관계수 0.8 미만이고 에코 꼭대기가 해발 3 km 이상인 반사도 핵이 연속 2개 볼륨에 나타나면 켜지고, 마지막 신호 뒤 6시간 동안 유지됩니다. 비 에코 시간대(24일 06~18시, 27일 15시~28일 02시, 28일 06시 이후)는 판정에서 빠지고, 26일 09:20~15:10은 레이더 자료가 없습니다.</p>
       <p>화재 도달: GK2A 화재 화소 중심이 2.5 km 안에서 2시간 연속 탐지된 첫 관측 시각입니다. 2 km·1시간 해상도라 건물에 불이 닿은 시각이 아닙니다.</p>
       <p>선행시간 = 화재 도달 − S3 경보(도달 6시간 전부터 찾음). 2025년 3월 사건 하나로 정한 기준이며 운영 경보로 검증되지 않았습니다. 피해 보도는 언론 기준입니다.</p>
@@ -374,6 +377,7 @@ function computeForecast(){
     : "현재 활성 화점이 없어 예측할 확산이 없습니다.";
 }
 function drawForecast(){
+  if (!cv.width || !cv.height) return;                 // canvas hidden (3D view or zero-size pane)
   if (!$("lFc").checked || !FC.pts.length) return;
   const off = document.createElement("canvas"), r = window.devicePixelRatio || 1; off.width = cv.width; off.height = cv.height;
   const o = off.getContext("2d"); o.setTransform(r, 0, 0, r, 0, 0); o.fillStyle = "#c2185b";
@@ -384,26 +388,48 @@ function drawForecast(){
 }
 
 // ---------- alert levels and recommended actions ----------
-const ACT = {3: "인원 대피·출입 통제, 소방 방어선·살수", 2: "방염포 설치, 동산 유산 이송 준비, 주변 가연물 제거", 1: "상황 감시, 비상연락망·이송 장비 점검"};
+const ACT = {4: "인원 대피·출입 통제, 소방 방어선·살수", 3: "방염포 설치, 동산 유산 이송 준비, 주변 가연물 제거", 2: "상황 감시, 비상연락망·이송 장비 점검", 1: "소화 용수·이동식 살수 장비 점검"};
+const LVN = ["정상", "관심", "주의", "경보", "긴급"], LVC = ["var(--line)", "var(--notice)", "var(--watch)", "var(--alarm)", "var(--fire)"];
+// 관심 (GK2A within 20 km, last 2 h) and 주의 deep plume (15 dBZ top >= 3.5 km within 5 km), cached per frame
+const L4C = {key: null};
+function lv4(){
+  const key = src + ":" + (src === "live" ? (LV && LV.updated) : fi) + ":" + !!spriteData;
+  if (L4C.key === key) return L4C;
+  const t = nowT(), GKS = src === "live" ? (LV && LV.gk2a || []).map(g => [g[0], g[1], toMs(g[2])]) : GK;
+  const g2 = GKS.filter(g => g[2] <= t && t - g[2] <= 2 * 3600000), deep = new Uint8Array(G.nx * G.ny);
+  if (src === "live"){ for (const [r, c, k1] of (LV && LV.top) || []) if (k1 > 0 && (k1 - 1) * G.dz >= 3.5) deep[r * G.nx + c] = 1; }
+  else if (spriteData) for (let r = 0; r < G.ny; r++) for (let c = 0; c < G.nx; c++){ const k1 = spriteData[px(fi, r, c)]; if (k1 > 0 && (k1 - 1) * G.dz >= 3.5) deep[r * G.nx + c] = 1; }
+  const w = new Uint8Array(H.length), d = new Uint8Array(H.length);
+  for (const h of H){
+    for (const g of g2) if ((g[0] - h.x) ** 2 + (g[1] - h.y) ** 2 <= 400){ w[h.i] = 1; break; }
+    if (!h.rg) continue; const c0 = Math.floor(h.x - G.x0), r0 = Math.floor(G.y1 - h.y);
+    for (let dr = -5; dr <= 5 && !d[h.i]; dr++) for (let dc = -5; dc <= 5; dc++){ const r = r0 + dr, c = c0 + dc;
+      if (r < 0 || c < 0 || r >= G.ny || c >= G.nx || !deep[r * G.nx + c]) continue;
+      if ((G.x0 + c + 0.5 - h.x) ** 2 + (G.y1 - r - 0.5 - h.y) ** 2 <= 25){ d[h.i] = 1; break; } } }
+  return Object.assign(L4C, {key, w, d});
+}
 function level(h){
   const st = state(h), eta = FC.eta.get(h.i);
-  if (st === "fire") return [3, "화재 도달"];
-  if (eta !== undefined && eta <= 1) return [3, `예상 도달 ${Math.round(eta*60)}분`];
-  if (st === "alarm") return [2, "S3 연기 기둥 핵"];
-  if (eta !== undefined && eta <= FC.H) return [2, `예상 도달 ${eta.toFixed(1)}시간`];
-  if (eta !== undefined && eta <= 6) return [1, `예상 도달 ${eta.toFixed(1)}시간`];
+  if (st === "fire") return [4, "화재 도달"];
+  if (eta !== undefined && eta <= 1) return [4, `예상 도달 ${Math.round(eta*60)}분`];
+  if (st === "alarm") return [3, "S3 연기 기둥 핵"];
+  if (eta !== undefined && eta <= FC.H) return [3, `예상 도달 ${eta.toFixed(1)}시간`];
+  const q = lv4();
+  if (q.d[h.i]) return [2, "깊은 연기 기둥 5 km 안"];
+  if (eta !== undefined && eta <= 6) return [2, `예상 도달 ${eta.toFixed(1)}시간`];
+  if (q.w[h.i]) return [1, "GK2A 화점 20 km 안"];
   return [0, ""];
 }
 const ackKey = h => "ack:" + h.n + ":" + h.x;
 function ackGet(h){ try { return localStorage.getItem(ackKey(h)) === "1"; } catch (_) { return false; } }
 function ackSet(h, v){ try { localStorage.setItem(ackKey(h), v ? "1" : "0"); } catch (_) {} }
 function buildAlerts(){
-  const L = [0, 0, 0, 0], rows = [];
+  const L = [0, 0, 0, 0, 0], rows = [];
   for (const h of shown()){ const [lv, why] = level(h); L[lv]++; if (lv > 0) rows.push([h, lv, why]); }
-  for (let k = 0; k < 4; k++) $("L" + k).textContent = L[k];
+  for (let k = 0; k < 5; k++) $("L" + k).textContent = L[k];
   $("alTitle").textContent = `경보 단계 · ${mode === "path" ? "산불 경로 유산" : "경북 전체 유산"}`;
   rows.sort((a, b) => b[1] - a[1] || (FC.eta.get(a[0].i) ?? 99) - (FC.eta.get(b[0].i) ?? 99));
-  const C = {3: "var(--fire)", 2: "var(--alarm)", 1: "var(--watch)"}, N = {3: "긴급", 2: "경보", 1: "주의"};
+  const C = LVC, N = LVN;
   $("alerts").innerHTML = rows.slice(0, 120).map(([h, lv, why]) => `<tr data-i="${h.i}"><td><span class="pill" style="--c:${C[lv]}">${N[lv]}</span> ${h.n}<br><span style="color:var(--muted);font-size:11px">${h.k} · ${h.s}</span></td>
     <td style="font-size:12px">${why}</td><td style="font-size:12px">${ACT[lv]}</td><td><input type="checkbox" aria-label="조치 확인" ${ackGet(h) ? "checked" : ""}></td></tr>`).join("")
     + (rows.length > 120 ? `<tr><td colspan="4" style="color:var(--muted)">외 ${rows.length - 120}건</td></tr>` : "")
@@ -486,7 +512,7 @@ function draw(){
   cx.fillRect(X(rx)-5, Y(ry)-1.5, 10, 3); cx.fillRect(X(rx)-1.5, Y(ry)-5, 3, 10);
   cx.textAlign = "left"; cx.strokeText("면봉산 레이더", X(rx)+8, Y(ry)+4); cx.fillText("면봉산 레이더", X(rx)+8, Y(ry)+4);
   // heritage
-  const LC = [css("--wait"), css("--watch"), css("--alarm"), css("--fire")];
+  const LC = [css("--wait"), css("--notice"), css("--watch"), css("--alarm"), css("--fire")];
   const list = shown(), big = mode === "path";
   const items = list.map(h => [h, state(h), level(h)[0]]).sort((a,b) => a[2] - b[2] || a[0].p - b[0].p);
   for (const [h, st, lv] of items){
@@ -634,7 +660,7 @@ function showTip(h, e, r){
     (h.alwt ? `<br>도달 전 S3 경보: ${fmtT(h.alwt)}` : h.rg && h.al !== null && h.al !== undefined ? `<br>첫 S3 신호: ${fmtT(tms[h.al])}` : "") +
     (h.a1t ? `<br>화재 도달: ${fmtT(h.a1t)}` : "") + (o === "hit" ? `<br>선행시간: ${h.lead.toFixed(1)}시간` : o === "miss" ? "<br>경보 없이 도달" : "") +
     (h.db !== null ? `<br>연소 범위까지: ${h.db} km` : "") + (h.z ? `<br>레이더 경보 구역: ${h.z}` : "") + (h.d ? `<br><span class="dmg">피해 보도: ${h.d}</span>` : "") +
-    (lv[0] ? `<br><b>${["", "주의", "경보", "긴급"][lv[0]]}</b>: ${lv[1]} → ${ACT[lv[0]]}` : "");
+    (lv[0] ? `<br><b>${LVN[lv[0]]}</b>: ${lv[1]} → ${ACT[lv[0]]}` : "");
   tip.hidden = false;
   let lx = e.clientX - r.left + 14, ly = e.clientY - r.top + 10;
   if (lx + 270 > r.width) lx -= 290; if (ly + 170 > r.height) ly -= 180; tip.style.left = lx + "px"; tip.style.top = ly + "px";
@@ -794,9 +820,9 @@ function update3d(){
   if (is3d) $("mapnote").textContent = volMsg || (V === "loading" ? "층별 레이더 자료를 불러오는 중입니다." : $("mapnote").dataset.n3d);
   T3.plume.count = n; T3.cores.count = nc; T3.plume.instanceMatrix.needsUpdate = true; T3.cores.instanceMatrix.needsUpdate = true;
   if (T3.plume.instanceColor) T3.plume.instanceColor.needsUpdate = true;
-  const LCc = [css("--wait"), css("--watch"), css("--alarm"), css("--fire")]; let np = 0; T3.pinList = [];
+  const LCc = [css("--wait"), css("--notice"), css("--watch"), css("--alarm"), css("--fire")]; let np = 0; T3.pinList = [];
   for (const h of shown()){ const st = state(h), lv = level(h)[0], hollow = st === "out" && lv === 0;
-    const len = (h.p ? 3.2 : 1.8) + lv * 0.9, gz = elevKm(h.x, h.y);
+    const len = (h.p ? 3.2 : 1.8) + lv * 0.7, gz = elevKm(h.x, h.y);
     m.makeScale(h.p ? 1.4 : 0.9, len, h.p ? 1.4 : 0.9).setPosition(T3.W3(h.x, h.y, gz)); T3.pins.setMatrixAt(np, m);
     col.set(hollow ? css("--out") : LCc[lv]); if (h.i === sel) col.set(css("--accent")); T3.pins.setColorAt(np, col); T3.pinList.push(h); np++; }
   T3.pins.count = np; T3.pins.instanceMatrix.needsUpdate = true; T3.pins.instanceColor.needsUpdate = true;
