@@ -172,6 +172,8 @@ aside{min-width:0; display:flex; flex-direction:column; gap:10px; overflow:auto}
       <h2>레이어</h2>
       <div class="layers">
         <label><input type="checkbox" id="lTop" checked> 레이더 연기 기둥 높이 (15 dBZ 에코 꼭대기)</label>
+        <label><input type="checkbox" id="lS1"> S1 연기 에코 (15 dBZ 이상, ρhv 0.8 미만)</label>
+        <label><input type="checkbox" id="lS2"> S2 심층 연기 기둥 (에코 정점고도 3.5 km 이상)</label>
         <label><input type="checkbox" id="lCore" checked> S3 저층 연기 기둥 핵</label>
         <label><input type="checkbox" id="lGk" checked> GK2A 화재 탐지 (2 km, 1시간)</label>
         <label><input type="checkbox" id="lVi" checked> VIIRS 화재 탐지 (375 m, 위성 통과 시각)</label>
@@ -190,6 +192,8 @@ aside{min-width:0; display:flex; flex-direction:column; gap:10px; overflow:auto}
         <div><span class="sw" style="background:var(--wait)"></span>정상</div>
         <div><span class="sw" style="background:#c2185b;opacity:.45;border-color:#c2185b;border-radius:2px"></span>예측 확산 범위 (활성 화점별 바람 타원)</div>
         <div><span class="sw" style="background:transparent;border-color:var(--out)"></span>레이더 분석 범위 밖</div>
+        <div><span class="sw" style="background:rgba(121,85,72,0.55);border-radius:1px;border-color:rgba(121,85,72,0.55)"></span>S1 연기 에코가 있는 1 km 칸</div>
+        <div><span class="sw" style="background:transparent;border-radius:1px;border-color:#5e35b1;border-width:2px"></span>S2 심층 연기 기둥 1 km 칸</div>
         <div><span class="sw" style="background:var(--core);border-radius:1px;border-color:#7a5a00"></span>S3 핵이 있는 1 km 칸</div>
         <div>에코 꼭대기 3 km <span class="bar"></span> 9 km</div>
         <div>해발 0 m <span class="bar" id="elevbar"></span> 1,900 m</div>
@@ -217,6 +221,9 @@ aside{min-width:0; display:flex; flex-direction:column; gap:10px; overflow:auto}
       <table style="width:100%;border-collapse:collapse;font-size:12px;margin:4px 0 8px"><tr><th style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">신호</th><th style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">판정 조건</th><th style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">2025년 경북 산불 평가 결과</th></tr><tr><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">S1 연기 에코</td><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">유산 반경 5 km 안에 반사도 15 dBZ 이상, ρhv 0.8 미만인 에코가 1개 체적 주사에서 나타남</td><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">화재 기간 내내 켜져 지점 간 구분력이 없음</td></tr><tr><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">S2 심층 연기 기둥</td><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">유산 반경 5 km 안에 15 dBZ 에코 정점고도가 해발 3.5 km 이상인 기둥이 나타남</td><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">도달 지점 대부분에서 먼저 나타나지만, 미연소 대조 지점의 일별 오경보율이 76~100%임</td></tr><tr><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">S3 연기 기둥 핵(채택)</td><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">S1·S2보다 엄격한 아래 표의 네 조건을 유산 반경 8 km 안에서 연속 2개 체적 주사(10분 간격)에 만족함</td><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">오경보가 가장 적고, 도달 지점의 약 90%에서 위성 도달 판정보다 먼저(선행시간 중앙값 약 2시간) 나타남</td></tr></table>
       <p><b>S3 연기 기둥 핵의 판정 조건.</b></p>
       <table style="width:100%;border-collapse:collapse;font-size:12px;margin:4px 0 8px"><tr><th style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">조건</th><th style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">기준</th><th style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">의미</th></tr><tr><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">고도</td><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">1~2 km</td><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">산불 연기 기둥의 하층</td></tr><tr><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">반사도</td><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">30 dBZ 이상</td><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">재·불티 같은 큰 입자의 강한 후방 산란</td></tr><tr><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">동일편파 상관계수(ρhv)</td><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">0.8 미만</td><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">강수 입자(ρhv 0.95 이상)가 아닌 형상이 불규칙한 연기·재 입자</td></tr><tr><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">에코 정점고도</td><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">해발 3 km 이상</td><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">강한 화재 열에 의해 연기 기둥이 높이 상승한 상태</td></tr></table>
+      <p><b>S1 연기 에코.</b> 레이더 1 km 격자 기둥(해발 0~16 km, 500 m 층) 안에 반사도 15 dBZ 이상이면서 동일편파 상관계수(ρhv)가 0.8 미만인 체적 요소가 하나라도 있는 칸이다. ρhv가 낮다는 것은 강수 입자처럼 형상이 균일한 산란체가 아니라 연기·재·불티처럼 형상과 크기가 불규칙한 산란체임을 뜻한다. 화재 기간에는 화재 지역 전반에서 상시 나타나므로 개별 유산의 경보에는 쓰지 않고, 연기가 퍼진 범위를 확인하는 참고 레이어로 제공한다. 지도에서는 갈색 칸으로 표시한다.</p>
+      <p><b>S2 심층 연기 기둥.</b> 15 dBZ 에코 정점고도가 해발 3.5 km 이상인 칸으로, 강한 화재 열에 의한 상승기류로 연기 기둥이 대류권 중층까지 발달한 상태를 나타낸다. 도달 지점 대부분에서 화재 도달 전에 나타나 선행성이 크지만(선행시간 약 2.8시간), ρhv 조건이 없어 강수 구름에도 나타나며 미연소 대조 지점의 일별 오경보율이 76~100%로 높다. 따라서 4단계 중 '주의' 단계의 광역 예비 신호로만 사용하며(유산 반경 5 km), 지도에서는 보라색 테두리 칸으로 표시한다.</p>
+      <p><b>표시 기본값.</b> S1·S2 레이어는 평상시 꺼져 있으며, 레이어 목록에서 켤 수 있다. S1은 층별 레이더 자료를 내려받은 뒤 표시된다.</p>
       <p><b>S3 경보.</b> 유산 반경 8 km 안에서 고도 1~2 km에 반사도 30 dBZ 이상, 동일편파 상관계수(ρhv) 0.8 미만이고 에코 정점고도가 해발 3 km 이상인 반사도 핵이 연속 2개 체적 주사에서 나타나면 발령하고, 마지막 신호 이후 6시간 동안 유지한다. 강수 에코 시간대(24일 06~18시, 27일 15시~28일 02시, 28일 06시 이후)는 판정에서 제외하였으며, 26일 09:20~15:10은 레이더 자료가 결측이다.</p>
       <p><b>화재 도달.</b> GK2A 화재 화소 중심이 유산 반경 2.5 km 안에서 2시간 연속 탐지된 첫 관측 시각으로 정의한다. 공간 해상도 2 km, 시간 해상도 1시간의 자료이므로 건축물에 화염이 접촉한 시각과는 다르다.</p>
       <p><b>선행시간(lead time).</b> 선행시간은 화재 도달 시각에서 S3 경보 발령 시각을 뺀 값이며, S3 경보는 도달 6시간 전부터 탐색한다. 이 기준은 2025년 3월 단일 사건으로 설정한 것으로 운영 경보로서 검증되지 않았다. 피해 여부는 언론 보도를 기준으로 하였다.</p>
@@ -245,7 +252,7 @@ for (const h of H) if (h.on){ const lo = new Int16Array(h.on.length); let last =
   for (let k = 0; k < h.on.length; k++){ if (h.on[k] === "1") last = k; lo[k] = last; } h.lo = lo; }
 const GK = D.gk2a.map(([x, y, t]) => [x, y, new Date(t.replace(" ", "T") + ":00+09:00").getTime()]);
 let mode = "path", fi = 0, playing = false, timer = null, sel = null;
-const lay = {top: true, core: true, gk: true, vi: true, wind: true, dnbr: false, burn: false};
+const lay = {s1: false, s2: false, top: true, core: true, gk: true, vi: true, wind: true, dnbr: false, burn: false};
 
 // ---------- images ----------
 function loadImg(src){ return new Promise(r => { const im = new Image(); im.onload = () => r(im); im.src = src; }); }
@@ -273,6 +280,7 @@ const cv = $("map"), cx = cv.getContext("2d");
 const EXT = B.ext, GB = B.gb;
 let view = null;
 function fit(E = GB){       // first view and reset: Gyeongbuk; "전국" button: all of South Korea
+  if (!cv.clientWidth || !cv.clientHeight){ view = null; return; }      // canvas hidden (3D view, zero-size pane): fit again on the next resize
   const w = cv.clientWidth, h = cv.clientHeight, sx = w / (E[1]-E[0]), sy = h / (E[3]-E[2]), s = Math.min(sx, sy) * 0.97;
   view = {s, ox: (w - s*(E[1]-E[0]))/2 - s*E[0], oy: (h - s*(E[3]-E[2]))/2 + s*E[3]};
 }
@@ -281,7 +289,7 @@ function resize(){
   const r = window.devicePixelRatio || 1;
   cv.width = Math.round(cv.clientWidth * r); cv.height = Math.round(cv.clientHeight * r);
   cx.setTransform(r, 0, 0, r, 0, 0);
-  if (!view) fit(); draw();
+  if (!view || !view.s) fit(); draw();
 }
 
 // ---------- state ----------
@@ -472,6 +480,9 @@ function draw(){
   cx.imageSmoothingEnabled = false;
   cx.drawImage(radarCv, X(G.x0), Y(G.y1), view.s*(G.x1-G.x0), view.s*(G.y1-G.y0));
   cx.imageSmoothingEnabled = true;
+  if (lay.s1 || lay.s2){ const s = view.s;
+    if (lay.s1){ cx.fillStyle = "rgba(121,85,72,0.55)"; for (const k of s12Cells().s1){ const r = Math.floor(k / G.nx), c = k % G.nx; cx.fillRect(X(G.x0 + c), Y(G.y1 - r), s, s); } }
+    if (lay.s2){ cx.strokeStyle = "#5e35b1"; cx.lineWidth = 1.2; for (const k of s12Cells().s2){ const r = Math.floor(k / G.nx), c = k % G.nx; cx.strokeRect(X(G.x0 + c) + 0.5, Y(G.y1 - r) + 0.5, s - 1, s - 1); } } }
   if (lay.core){
     cx.fillStyle = css("--core"); cx.strokeStyle = "#7a5a00"; cx.lineWidth = 0.8;
     const cell = (r, c) => { const x = X(G.x0 + c), y = Y(G.y1 - r), s = view.s; cx.fillRect(x, y, s, s); cx.strokeRect(x, y, s, s); };
@@ -650,8 +661,8 @@ function zoomAt(px, py, f){ const wx = (px - view.ox)/view.s, wy = (view.oy - py
   view.ox = px - view.s*wx; view.oy = py + view.s*wy; draw(); }
 $("zin").onclick = () => zoomAt(cv.clientWidth/2, cv.clientHeight/2, 1.4);
 $("zout").onclick = () => zoomAt(cv.clientWidth/2, cv.clientHeight/2, 0.7);
-$("zreset").onclick = () => { fit(); draw(); };
-$("zkr").onclick = () => { fit(EXT); draw(); };
+$("zreset").onclick = () => { if (is3d) return; fit(); draw(); };
+$("zkr").onclick = () => { if (is3d) return; fit(EXT); draw(); };
 function pick(e){ const r = cv.getBoundingClientRect(), px = e.clientX - r.left, py = e.clientY - r.top; let best = null, bd = e.pointerType === "touch" ? 18 : 9;
   for (const h of shown()){ const d = Math.hypot(X(h.x) - px, Y(h.y) - py); if (d < bd){ bd = d; best = h; } } return best; }
 const STL = {wait: "대기", alarm: "S3 경보 중", fire: "화재 도달", out: "레이더 범위 밖"};
@@ -676,7 +687,7 @@ $("speed").onchange = () => { if (playing) play(true); };
 $("mPath").onclick = () => setMode("path"); $("mAll").onclick = () => setMode("all");
 $("sLive").onclick = () => setSource("live"); $("sReplay").onclick = () => setSource("replay");
 for (const id of ["fH", "fW", "fD", "lFc"]) $(id).addEventListener("input", () => { computeForecast(); draw(); updateCounts(); });
-for (const [id, k] of [["lTop","top"],["lCore","core"],["lGk","gk"],["lVi","vi"],["lWind","wind"],["lDnbr","dnbr"],["lBurn","burn"]]) $(id).onchange = e => { lay[k] = e.target.checked; if (src === "live") liveRadar(); else buildRadar(); draw(); };
+for (const [id, k] of [["lS1","s1"],["lS2","s2"],["lTop","top"],["lCore","core"],["lGk","gk"],["lVi","vi"],["lWind","wind"],["lDnbr","dnbr"],["lBurn","burn"]]) $(id).onchange = e => { lay[k] = e.target.checked; if (src === "live") liveRadar(); else buildRadar(); draw(); };
 document.addEventListener("keydown", e => { if (e.target.tagName === "INPUT" && e.target.type !== "range") return;
   if (e.key === " "){ e.preventDefault(); play(!playing); } if (e.key === "ArrowRight") setFrame(fi+1); if (e.key === "ArrowLeft") setFrame(fi-1); });
 matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { drawSpark(); draw(); });
@@ -697,10 +708,18 @@ function volFor(f){
       const off = new Uint32Array(nf + 1); for (let i = 0; i < nf; i++) off[i + 1] = off[i] + u[1 + i];
       Object.assign(e, {ready: true, data: u.subarray(1 + nf), off, f0: ch.f0}); volMsg = "";
     } catch (err) { e.failed = true; volMsg = "층별 레이더 자료를 불러오지 못했습니다 (" + err.message + "). 기둥 표현으로 봅니다."; }
-      if (is3d) update3d(); })();
+      if (is3d) update3d(); else draw(); })();
   }
   if (!e.ready) return e.failed ? null : "loading";
   const k = f - e.f0; return e.data.subarray(e.off[k], e.off[k + 1]);
+}
+// S1 smoke echo cells (column has a voxel >= 15 dBZ with rhoHV < 0.8) and S2 deep plume cells (15 dBZ top >= 3.5 km)
+function s12Cells(){
+  const s1 = new Set(), s2 = [];
+  if (lay.s1){ const V = voxNow(); if (V && V !== "loading") for (let i = 0; i < V.length; i++) if ((V[i] >>> 26) & 1) s1.add(V[i] & 0x3fff); }
+  if (lay.s2){ if (src === "live"){ for (const [r, c, k1] of (LV && LV.top) || []) if (k1 > 0 && (k1 - 1) * G.dz >= 3.5) s2.push(r * G.nx + c); }
+    else if (spriteData) for (let r = 0; r < G.ny; r++) for (let c = 0; c < G.nx; c++){ const k1 = spriteData[px(fi, r, c)]; if (k1 > 0 && (k1 - 1) * G.dz >= 3.5) s2.push(r * G.nx + c); } }
+  return {s1, s2};
 }
 function voxNow(){
   if (src === "live"){ if (!LV || !LV.vox) return null;
@@ -790,6 +809,9 @@ function paintTex(){
     g.strokeStyle = "#fff"; g.lineWidth = 7; g.beginPath(); g.moveTo(x0, y0); g.lineTo(x1, y1); g.stroke();
     g.strokeStyle = c; g.lineWidth = 3.5; g.beginPath(); g.moveTo(x0, y0); g.lineTo(x1, y1); g.stroke();
     g.fillStyle = c; g.beginPath(); g.moveTo(x1, y1); g.lineTo(x1 - 11 * Math.sin(a - 0.45), y1 + 11 * Math.cos(a - 0.45)); g.lineTo(x1 - 11 * Math.sin(a + 0.45), y1 + 11 * Math.cos(a + 0.45)); g.fill(); }
+  if (lay.s1 || lay.s2){ const q = s12Cells(), cw = k;
+    if (lay.s1){ g.fillStyle = "rgba(121,85,72,0.6)"; for (const i of q.s1){ const r = Math.floor(i / G.nx), c = i % G.nx; g.fillRect(U(G.x0 + c), V(G.y1 - r), cw, cw); } }
+    if (lay.s2){ g.strokeStyle = "#5e35b1"; g.lineWidth = 2.5; for (const i of q.s2){ const r = Math.floor(i / G.nx), c = i % G.nx; g.strokeRect(U(G.x0 + c) + 1, V(G.y1 - r) + 1, cw - 2, cw - 2); } } }
   g.font = "600 24px " + css("--font-ui"); g.textAlign = "center"; g.lineWidth = 5; g.strokeStyle = "rgba(255,255,255,0.9)"; g.fillStyle = "#2a2f45";
   for (const [n, x, y] of B.labels){ g.strokeText(n, U(x), V(y)); g.fillText(n, U(x), V(y)); }
   T3.tex.needsUpdate = true;
