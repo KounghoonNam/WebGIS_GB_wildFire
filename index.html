@@ -284,7 +284,7 @@ function resize(){
 function state(h){
   if (src === "live"){ const q = LV && LV.heritage[h.i] || {}, t = nowT();
     if (q.a1) return "fire"; if (!h.rg) return "out";
-    return q.s3 && t - toMs(q.s3) <= SIX ? "alarm" : "wait"; }
+    return q.s3 && t - toMs(q.s3) <= SIX && lv4().w[h.i] ? "alarm" : "wait"; }   // live: S3 only near a GK2A pixel (20 km, 2 h)
   const t = tms[fi];
   const arrived = h.a1t !== null && h.a1t <= t;
   if (!h.rg) return arrived ? "fire" : "out";
