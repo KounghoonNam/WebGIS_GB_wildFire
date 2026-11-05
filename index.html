@@ -123,8 +123,8 @@ aside{min-width:0; display:flex; flex-direction:column; gap:10px; overflow:auto}
     <div class="card">
       <h2>자료</h2>
       <div class="seg">
-        <button id="sLive">실시간 감시</button>
-        <button id="sReplay" class="on">2025년 3월 재현</button>
+        <button id="sLive" class="on">실시간 감시</button>
+        <button id="sReplay">2025년 3월 재현</button>
       </div>
       <p class="sub" id="liveinfo" style="margin:8px 0 0"></p>
     </div>
@@ -154,8 +154,8 @@ aside{min-width:0; display:flex; flex-direction:column; gap:10px; overflow:auto}
     <div class="card">
       <h2>보기</h2>
       <div class="seg">
-        <button id="mPath" class="on">산불 경로 유산 <span id="nPath"></span></button>
-        <button id="mAll">경북 전체 유산 <span id="nAll"></span></button>
+        <button id="mPath">산불 경로 유산 <span id="nPath"></span></button>
+        <button id="mAll" class="on">경북 전체 유산 <span id="nAll"></span></button>
       </div>
     </div>
     <div class="card">
@@ -883,6 +883,6 @@ $("zreset").addEventListener("click", () => { if (is3d && T3) home3d(); });
   window.addEventListener("resize", () => { resize(); drawSpark(); });
   resize(); buildTicks(); computeSeries(); buildRoll();
   fi = tms.findIndex(t => t >= new Date("2025-03-25T15:30:00+09:00").getTime());
-  setSource("replay");
+  setMode("all"); setSource("live");          // default view (2026-11-06): live monitoring, all 1,650 Gyeongbuk heritage sites
 })();
 </script>
