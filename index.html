@@ -754,7 +754,8 @@ function drawDecor(){
   cx.fillStyle = ink; cx.fillRect(x0, y0, px / 2, 5); cx.strokeStyle = ink; cx.lineWidth = 1; cx.strokeRect(x0 + 0.5, y0 + 0.5, px - 1, 5);
   cx.font = "600 11px " + css("--font-ui"); cx.textAlign = "center"; cx.fillText("0", x0, y0 - 5); cx.fillText(String(L / 2), x0 + px / 2, y0 - 5);
   cx.textAlign = "left"; cx.fillText(`${L} km`, x0 + px - 4, y0 - 5);
-  const nx = w - 30, ny = h - 58;                                     // north arrow, bottom right
+  const mn = $("mapnote"), cr = cv.getBoundingClientRect(), mr = mn && !mn.hidden && mn.offsetHeight ? mn.getBoundingClientRect() : null;
+  const nx = 30, ny = (mr ? Math.max(0, mr.bottom - cr.top) : 0) + 30;   // north arrow, top left (below the map note)
   cx.fillStyle = halo; cx.globalAlpha = 0.85; cx.beginPath(); cx.arc(nx, ny, 19, 0, 7); cx.fill(); cx.globalAlpha = 1;
   cx.beginPath(); cx.moveTo(nx, ny - 15); cx.lineTo(nx + 7, ny + 7); cx.lineTo(nx, ny + 2); cx.closePath(); cx.fillStyle = ink; cx.fill();
   cx.beginPath(); cx.moveTo(nx, ny - 15); cx.lineTo(nx - 7, ny + 7); cx.lineTo(nx, ny + 2); cx.closePath(); cx.strokeStyle = ink; cx.lineWidth = 1.2; cx.stroke();
