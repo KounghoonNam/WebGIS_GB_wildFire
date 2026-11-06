@@ -719,7 +719,7 @@ function showTip(h, e, r, pinned = false){
     if (h.alwt) s += row("도달 전 연기 기둥 핵 경보:", fmtT(h.alwt));
     else if (h.rg && h.al !== null && h.al !== undefined) s += row("최초 연기 기둥 핵 신호:", fmtT(tms[h.al]));
     if (h.a1t) s += row("화재 도달:", fmtT(h.a1t));
-    if (o === "hit") s += row("선행시간:", `${h.lead.toFixed(1)}시간`); else if (o === "miss") s += row("선행시간:", "경보 없이 도달");
+    if (o === "hit") s += row("선행시간:", h.lead < 1 ? `${Math.round(h.lead * 60)}분` : `${Math.floor(h.lead)}시간 ${Math.round((h.lead % 1) * 60)}분`); else if (o === "miss") s += row("선행시간:", "경보 없이 도달");
     if (h.d) s += `<br><span class="dmg">피해 보도: ${h.d}</span>`;
   }
   tip.innerHTML = s; tip.hidden = false; tip.style.pointerEvents = pinned ? "auto" : "none"; tip.dataset.i = h.i;
