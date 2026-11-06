@@ -35,7 +35,10 @@ header{display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space
 .clock .kst{font-size:11px; color:var(--muted); letter-spacing:.08em}
 .flag{font-family:var(--font-ui); font-size:11.5px; padding:2px 8px; border-radius:10px; border:1px solid var(--muted); color:var(--muted)}
 .days{display:flex; flex-wrap:wrap; gap:4px; margin-top:4px} .days button{padding:2px 8px; font-size:11.5px; font-family:var(--font-num)}
-main{flex:1; min-height:0; display:grid; grid-template-columns:minmax(0,1fr) 360px; gap:10px}
+main{flex:1; min-height:0; display:grid; grid-template-columns:minmax(0,1fr) 10px var(--sideW,360px); gap:0 2px}
+.splitter{cursor:col-resize; position:relative; touch-action:none; border-radius:4px}
+.splitter::before{content:""; position:absolute; top:50%; left:3px; width:4px; height:48px; margin-top:-24px; border-radius:2px; background:var(--line)}
+.splitter:hover::before,.splitter.drag::before,.splitter:focus-visible::before{background:var(--accent)}
 .mapwrap{position:relative; background:var(--sea); border:1px solid var(--line); border-radius:6px; overflow:hidden; min-height:420px;
   display:flex; flex-direction:column}
 #map{flex:1; width:100%; min-height:0; display:block; cursor:grab; touch-action:none}
@@ -85,14 +88,16 @@ aside{min-width:0; display:flex; flex-direction:column; gap:10px; overflow:auto}
 .zoom button{min-width:30px; height:30px; padding:0 6px; font-size:16px} #zreset,#zkr{font-size:11.5px}
 .notes{font-size:12px; color:var(--muted); line-height:1.6}
 .notes p{margin:0 0 6px}
-@media (max-width:860px){ main{grid-template-columns:minmax(0,1fr)} .mapwrap{min-height:70vh} aside{overflow:visible} }
+@media (max-width:860px){ main{grid-template-columns:minmax(0,1fr)} .mapwrap{min-height:70vh} aside{overflow:visible} .splitter{display:none} }
 @media (prefers-reduced-motion:reduce){ *{transition:none!important} }
+.jumpbtn{font:inherit;font-size:12px;padding:3px 10px;border:1px solid var(--line);border-radius:999px;background:var(--panel);color:var(--ink,inherit);cursor:pointer}.jumpbtn:hover{border-color:var(--accent)}
 </style>
 
 <header>
   <div>
     <h1>경북 산불 디지털 트윈</h1>
     <p class="sub" id="subline">실시간 감시: 기상청 면봉산 레이더·GK2A·AWS 자료를 10분 주기로 수집하여 문화유산 경보 단계와 1~3시간 확산 범위를 산정함 · 2025년 3월 22~28일 산불 재현</p>
+    <p class="sub jumps" style="margin:6px 0 0;display:flex;gap:6px;flex-wrap:wrap"><button type="button" id="jumpLegend" class="jumpbtn">범례 보기 ↓</button><button type="button" id="jumpNotes" class="jumpbtn">유의 사항 보기 ↓</button></p>
   </div>
   <div class="clock" aria-live="polite"><span class="flag" id="flag" hidden></span><span class="d" id="cd">2025.03.25</span><span class="t" id="ct">11:00</span><span class="kst">KST</span></div>
 </header>
@@ -119,6 +124,7 @@ aside{min-width:0; display:flex; flex-direction:column; gap:10px; overflow:auto}
     </div>
   </section>
 
+  <div class="splitter" id="splitter" role="separator" aria-orientation="vertical" aria-label="지도와 패널 폭 조절" tabindex="0" title="끌어서 패널 폭 조절 (두 번 누르면 기본값)"></div>
   <aside>
     <div class="card">
       <h2>자료</h2>
@@ -182,8 +188,8 @@ aside{min-width:0; display:flex; flex-direction:column; gap:10px; overflow:auto}
         <label><input type="checkbox" id="lBurn"> 최종 연소 범위 (Landsat, 59,752 ha)</label>
       </div>
     </div>
-    <div class="card">
-      <h2>범례</h2>
+    <div class="card" id="legendCard">
+      <h2>범례 <button type="button" class="jumpbtn jumpTop" style="float:right">↑ 지도</button></h2>
       <div class="legend">
         <div><span class="sw" style="background:var(--fire)"></span>긴급: 화재 도달(GK2A 2.5 km 이내) 또는 1시간 이내 도달 예측</div>
         <div><span class="sw" style="background:var(--alarm)"></span>경보: 레이더 저층 연기 기둥 핵(8 km 이내, 최근 6시간) 또는 예측 시간 이내 도달</div>
@@ -210,8 +216,8 @@ aside{min-width:0; display:flex; flex-direction:column; gap:10px; overflow:auto}
         <thead><tr><th>문화유산</th><th>S3 경보</th><th>도달</th><th style="text-align:right">선행시간</th></tr></thead>
         <tbody id="roll"></tbody></table></div>
     </div>
-    <div class="card notes">
-      <h2>유의 사항</h2>
+    <div class="card notes" id="notesCard">
+      <h2>유의 사항 <button type="button" class="jumpbtn jumpTop" style="float:right">↑ 지도</button></h2>
       <p style="margin:12px 0 4px;font-weight:700;color:var(--accent)">1. 감시 체계</p>
       <p><b>실시간 감시 체계.</b> 운영 PC가 10분 주기로 기상청 API에서 면봉산 레이더 체적 주사 자료, 천리안2A호(GK2A) 산불 탐지 산출물, 자동기상관측(AWS) 자료를 수집하여 동일한 판정 규칙을 적용한다. 본 페이지는 5분 주기로 판정 결과를 갱신한다. 감시 영역 부근에 화재 화소가 없는 평시에는 레이더 자료를 1시간 주기로 수집한다.</p>
       <p style="margin:12px 0 4px;font-weight:700;color:var(--accent)">2. 경보 4단계</p>
@@ -874,6 +880,24 @@ $("z3d").onclick = toggle3d;
 $("ex3d").onchange = e => setEx(+e.target.value);
 $("pl3d").onchange = () => update3d();
 $("zreset").addEventListener("click", () => { if (is3d && T3) home3d(); });
+
+
+// jump buttons to the explanation panels and back to the map (2026-11-06)
+const jump = el => { if (el) el.scrollIntoView({behavior: "smooth", block: "start"}); };
+$("jumpLegend").onclick = () => jump($("legendCard")); $("jumpNotes").onclick = () => jump($("notesCard"));
+for (const b of document.querySelectorAll(".jumpTop")) b.onclick = () => { document.querySelector("aside").scrollTo({top: 0, behavior: "smooth"}); jump(document.querySelector("header")); };
+// panel splitter: drag (mouse or touch), arrow keys, double click resets; width kept in this browser (2026-11-06)
+(() => { const sp = $("splitter"), root = document.documentElement, main = document.querySelector("main");
+  const setW = w => { const max = Math.max(300, main.clientWidth * 0.7); w = Math.min(max, Math.max(260, w)); root.style.setProperty("--sideW", w + "px");
+    try { localStorage.setItem("sideW", String(Math.round(w))); } catch (_) {} if (!is3d) resize(); };
+  try { const v = +localStorage.getItem("sideW"); if (v) root.style.setProperty("--sideW", v + "px"); } catch (_) {}
+  sp.addEventListener("pointerdown", e => { e.preventDefault(); sp.setPointerCapture(e.pointerId); sp.classList.add("drag");
+    const r = main.getBoundingClientRect(), mv = ev => setW(r.right - ev.clientX - 5), up = () => { sp.classList.remove("drag"); sp.removeEventListener("pointermove", mv); sp.removeEventListener("pointerup", up); };
+    sp.addEventListener("pointermove", mv); sp.addEventListener("pointerup", up); });
+  sp.addEventListener("keydown", e => { const cur = document.querySelector("aside").getBoundingClientRect().width;
+    if (e.key === "ArrowLeft") { setW(cur + 40); e.preventDefault(); } if (e.key === "ArrowRight") { setW(cur - 40); e.preventDefault(); } });
+  sp.addEventListener("dblclick", () => setW(360));
+})();
 
 // ---------- boot ----------
 (async () => {
