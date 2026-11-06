@@ -756,7 +756,7 @@ function drawDecor(){
   cx.font = "700 11px " + css("--font-ui"); cx.textAlign = "center"; cx.fillStyle = ink; cx.fillText("N", nx, ny + 17);
   const nice = [1, 2, 5, 10, 20, 25, 50, 100, 200], target = 110 / view.s; let L = nice[0];   // scale bar
   for (const v of nice) if (v <= target) L = v;
-  const visB = Math.min(cv.clientHeight, window.innerHeight - cr.top);   // bottom of the visible part of the map
+  const visB = Math.min(cv.height / (window.devicePixelRatio || 1), cv.clientHeight, window.innerHeight - cr.top);   // bottom of the visible part of the map
   const px = L * view.s, x0 = 14, y0 = Math.max(ny + 40, visB - 22);       // scale bar, bottom left of the visible map
   cx.fillStyle = halo; cx.globalAlpha = 0.85; cx.fillRect(x0 - 8, y0 - 19, px + 52, 32); cx.globalAlpha = 1;
   cx.fillStyle = ink; cx.fillRect(x0, y0, px / 2, 5); cx.strokeStyle = ink; cx.lineWidth = 1; cx.strokeRect(x0 + 0.5, y0 + 0.5, px - 1, 5);
@@ -766,6 +766,8 @@ function drawDecor(){
 }
 
 { const _draw = draw; draw = function(){ _draw(); drawDecor(); }; }
+{ let rq = false; new ResizeObserver(() => { if (rq || is3d || !cv.clientWidth) return; rq = true;   // canvas follows layout changes (2026-11-06)
+    requestAnimationFrame(() => { rq = false; const k = window.devicePixelRatio || 1; if (Math.abs(cv.width - Math.round(cv.clientWidth * k)) > 1 || Math.abs(cv.height - Math.round(cv.clientHeight * k)) > 1) resize(); }); }).observe(cv); }
 
 // keep the scale bar at the bottom of the visible map while the page scrolls (2026-11-06)
 { let sq = false; window.addEventListener("scroll", () => { if (sq || is3d) return; sq = true; requestAnimationFrame(() => { sq = false; draw(); }); }, {passive: true}); }
