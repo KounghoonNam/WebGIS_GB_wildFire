@@ -101,7 +101,7 @@ aside{min-width:0; display:flex; flex-direction:column; gap:10px; overflow:auto}
   <section class="mapwrap">
     <canvas id="map" aria-label="재생 지도"></canvas>
     <div id="view3d" hidden aria-label="3D 지도"></div>
-    <div class="mapnote" id="mapnote">점선 사각형 = 레이더 분석 범위. 범위 밖 유산은 회색 빈 원. 끌어서 이동, 휠·두 손가락으로 확대, 유산을 누르면 정보가 뜹니다.</div>
+    <div class="mapnote" id="mapnote">점선 사각형 = 레이더 분석 범위. 범위 외 유산은 회색 빈 원. 끌어서 이동, 휠·두 손가락으로 확대, 유산을 누르면 정보가 뜹니다.</div>
     <div class="zoom"><button id="zin" aria-label="확대">+</button><button id="zout" aria-label="축소">−</button><button id="zreset" aria-label="경북 보기" title="경북 보기">경북</button><button id="zkr" aria-label="전국 보기" title="전국 보기">전국</button>
       <button id="z3d" aria-label="3D 보기로 전환" title="3D 보기">3D</button>
       <select id="pl3d" class="ex3d" aria-label="연기 기둥 표현" title="연기 기둥 표현" hidden><option value="vox" selected>층별</option><option value="col">기둥</option></select>
@@ -187,11 +187,11 @@ aside{min-width:0; display:flex; flex-direction:column; gap:10px; overflow:auto}
       <div class="legend">
         <div><span class="sw" style="background:var(--fire)"></span>긴급: 화재 도달(GK2A 2.5 km 안) 또는 1시간 안 도달 예측</div>
         <div><span class="sw" style="background:var(--alarm)"></span>경보: 레이더 저층 연기 기둥 핵(8 km 안, 최근 6시간) 또는 예측 시간 안 도달</div>
-        <div><span class="sw" style="background:var(--watch)"></span>주의: 레이더 깊은 연기 기둥(5 km 안, 에코 정점고도 3.5 km 이상) 또는 6시간 안 도달 예측</div>
+        <div><span class="sw" style="background:var(--watch)"></span>주의: 레이더 심층 연기 기둥(5 km 안, 에코 정점고도 3.5 km 이상) 또는 6시간 안 도달 예측</div>
         <div><span class="sw" style="background:var(--notice)"></span>관심: GK2A 화점 20 km 안(최근 2시간)</div>
         <div><span class="sw" style="background:var(--wait)"></span>정상</div>
         <div><span class="sw" style="background:#c2185b;opacity:.45;border-color:#c2185b;border-radius:2px"></span>예측 확산 범위 (활성 화점별 바람 타원)</div>
-        <div><span class="sw" style="background:transparent;border-color:var(--out)"></span>레이더 분석 범위 밖</div>
+        <div><span class="sw" style="background:transparent;border-color:var(--out)"></span>레이더 분석 범위 외</div>
         <div><span class="sw" style="background:rgba(121,85,72,0.55);border-radius:1px;border-color:rgba(121,85,72,0.55)"></span>레이더 연기 에코가 있는 1 km 칸</div>
         <div><span class="sw" style="background:transparent;border-radius:1px;border-color:#5e35b1;border-width:2px"></span>레이더 심층 연기 기둥 1 km 칸</div>
         <div><span class="sw" style="background:var(--core);border-radius:1px;border-color:#7a5a00"></span>레이더 저층 연기 기둥 핵이 있는 1 km 칸</div>
@@ -428,7 +428,7 @@ function level(h){
   const q = lv4(), gate = src !== "live" || q.w[h.i];        // live: radar signals count only near a GK2A fire pixel (20 km, 2 h)
   if (st === "alarm" && gate) return [3, "레이더 저층 연기 기둥 핵"];
   if (eta !== undefined && eta <= FC.H) return [3, `예상 도달 ${eta.toFixed(1)}시간`];
-  if (q.d[h.i] && gate) return [2, "깊은 연기 기둥 5 km 안"];
+  if (q.d[h.i] && gate) return [2, "심층 연기 기둥 5 km 안"];
   if (eta !== undefined && eta <= 6) return [2, `예상 도달 ${eta.toFixed(1)}시간`];
   if (q.w[h.i]) return [1, "GK2A 화점 20 km 안"];
   return [0, ""];
@@ -665,7 +665,7 @@ $("zreset").onclick = () => { if (is3d) return; fit(); draw(); };
 $("zkr").onclick = () => { if (is3d) return; fit(EXT); draw(); };
 function pick(e){ const r = cv.getBoundingClientRect(), px = e.clientX - r.left, py = e.clientY - r.top; let best = null, bd = e.pointerType === "touch" ? 18 : 9;
   for (const h of shown()){ const d = Math.hypot(X(h.x) - px, Y(h.y) - py); if (d < bd){ bd = d; best = h; } } return best; }
-const STL = {wait: "대기", alarm: "연기 기둥 핵 경보 중", fire: "화재 도달", out: "레이더 범위 밖"};
+const STL = {wait: "대기", alarm: "연기 기둥 핵 경보 중", fire: "화재 도달", out: "레이더 범위 외"};
 function hover(e){
   const h = pick(e), tip = $("tip"); if (!h){ tip.hidden = true; return; }
   showTip(h, e, cv.getBoundingClientRect());
@@ -860,7 +860,7 @@ async function toggle3d(){
   for (const id of ["zin", "zout", "zkr"]) $(id).hidden = is3d;
   $("mapnote").dataset.n3d = "3D: 끌어서 회전, 오른쪽 끌기·두 손가락으로 이동, 휠로 확대. 층별 = 레이더 1 km×1 km×500 m 칸(15 dBZ 이상, 보라 = 연기·재, 하늘색 = 비·구름, 진할수록 강함), 노란 상자 = 레이더 저층 연기 기둥 핵, 막대 = 문화유산(색 = 경보 단계).";
   $("mapnote").textContent = is3d ? $("mapnote").dataset.n3d
-    : "점선 사각형 = 레이더 분석 범위. 범위 밖 유산은 회색 빈 원. 끌어서 이동, 휠·두 손가락으로 확대, 유산을 누르면 정보가 뜹니다.";
+    : "점선 사각형 = 레이더 분석 범위. 범위 외 유산은 회색 빈 원. 끌어서 이동, 휠·두 손가락으로 확대, 유산을 누르면 정보가 뜹니다.";
   if (is3d){ await init3d(); update3d(); } else { resize(); draw(); }
 }
 $("z3d").onclick = toggle3d;
