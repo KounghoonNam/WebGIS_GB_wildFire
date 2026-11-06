@@ -92,7 +92,7 @@ aside{min-width:0; display:flex; flex-direction:column; gap:10px; overflow:auto}
 <header>
   <div>
     <h1>경북 산불 디지털 트윈</h1>
-    <p class="sub" id="subline">실시간 감시: 기상청 면봉산 레이더·GK2A·AWS를 10분마다 받아 문화유산 경보와 1~3시간 확산 예측을 계산합니다 · 2025년 3월 22~28일 산불 재현</p>
+    <p class="sub" id="subline">실시간 감시: 기상청 면봉산 레이더·GK2A·AWS 자료를 10분 주기로 수집하여 문화유산 경보 단계와 1~3시간 확산 범위를 산정함 · 2025년 3월 22~28일 산불 재현</p>
   </div>
   <div class="clock" aria-live="polite"><span class="flag" id="flag" hidden></span><span class="d" id="cd">2025.03.25</span><span class="t" id="ct">11:00</span><span class="kst">KST</span></div>
 </header>
@@ -101,17 +101,17 @@ aside{min-width:0; display:flex; flex-direction:column; gap:10px; overflow:auto}
   <section class="mapwrap">
     <canvas id="map" aria-label="재생 지도"></canvas>
     <div id="view3d" hidden aria-label="3D 지도"></div>
-    <div class="mapnote" id="mapnote">점선 사각형 = 레이더 분석 범위. 범위 외 유산은 회색 빈 원. 끌어서 이동, 휠·두 손가락으로 확대, 유산을 누르면 정보가 뜹니다.</div>
+    <div class="mapnote" id="mapnote">점선 사각형 = 레이더 분석 범위. 범위 외 문화유산은 회색 빈 원. 끌기로 이동, 휠·두 손가락으로 확대, 문화유산 선택 시 속성 정보 표시.</div>
     <div class="zoom"><button id="zin" aria-label="확대">+</button><button id="zout" aria-label="축소">−</button><button id="zreset" aria-label="경북 보기" title="경북 보기">경북</button><button id="zkr" aria-label="전국 보기" title="전국 보기">전국</button>
       <button id="z3d" aria-label="3D 보기로 전환" title="3D 보기">3D</button>
       <select id="pl3d" class="ex3d" aria-label="연기 기둥 표현" title="연기 기둥 표현" hidden><option value="vox" selected>층별</option><option value="col">기둥</option></select>
-      <select id="ex3d" class="ex3d" aria-label="높이 과장" title="높이 과장" hidden><option value="1">×1</option><option value="2">×2</option><option value="3" selected>×3</option><option value="5">×5</option></select></div>
+      <select id="ex3d" class="ex3d" aria-label="수직 과장" title="수직 과장" hidden><option value="1">×1</option><option value="2">×2</option><option value="3" selected>×3</option><option value="5">×5</option></select></div>
     <div id="tip" hidden></div>
     <div class="timeline">
       <button id="play">▶ 재생</button>
       <select id="speed" class="speed" aria-label="재생 속도"><option value="400">1×</option><option value="180">2×</option><option value="80" selected>5×</option><option value="30">10×</option></select>
       <div class="track">
-        <canvas id="spark" aria-label="경보 및 도달 유산 수 추이"></canvas>
+        <canvas id="spark" aria-label="경보 및 도달 문화유산 수 추이"></canvas>
         <input type="range" id="slider" min="0" max="0" value="0" aria-label="시각">
         <div class="ticks" id="ticks"></div>
         <div class="days" id="days"></div>
@@ -148,24 +148,24 @@ aside{min-width:0; display:flex; flex-direction:column; gap:10px; overflow:auto}
         <div class="count" style="--c:var(--line)"><b id="L0">0</b><span>정상</span></div>
       </div>
       <div class="roll" style="max-height:300px;margin-top:8px"><table>
-        <thead><tr><th>유산</th><th>근거</th><th>권장 조치</th><th>확인</th></tr></thead>
+        <thead><tr><th>문화유산</th><th>근거</th><th>권장 조치</th><th>확인</th></tr></thead>
         <tbody id="alerts"></tbody></table></div>
     </div>
     <div class="card">
       <h2>보기</h2>
       <div class="seg">
-        <button id="mPath">산불 경로 유산 <span id="nPath"></span></button>
-        <button id="mAll" class="on">경북 전체 유산 <span id="nAll"></span></button>
+        <button id="mPath">산불 경로 문화유산 <span id="nPath"></span></button>
+        <button id="mAll" class="on">경북 전체 문화유산 <span id="nAll"></span></button>
       </div>
     </div>
     <div class="card">
       <h2 id="cntTitle">현재 시각 상태</h2>
       <p class="sub" id="windline" style="margin:0 0 8px"></p>
       <div class="counts">
-        <div class="count" style="--c:var(--alarm)"><b id="kAlarm">0</b><span>연기 기둥 핵 경보 중 (도달 전)</span></div>
+        <div class="count" style="--c:var(--alarm)"><b id="kAlarm">0</b><span>연기 기둥 핵 경보 발령 (화재 도달 전)</span></div>
         <div class="count" style="--c:var(--fire)"><b id="kFire">0</b><span>화재 도달</span></div>
         <div class="count" style="--c:var(--accent)"><b id="kHit">0</b><span>경보 후 도달 (적중)</span></div>
-        <div class="count" style="--c:var(--miss)"><b id="kMiss">0</b><span>경보 없이 도달 (놓침)</span></div>
+        <div class="count" style="--c:var(--miss)"><b id="kMiss">0</b><span>경보 없이 도달 (미탐지)</span></div>
       </div>
     </div>
     <div class="card">
@@ -177,7 +177,7 @@ aside{min-width:0; display:flex; flex-direction:column; gap:10px; overflow:auto}
         <label><input type="checkbox" id="lCore" checked> 레이더 저층 연기 기둥 핵 (고도 1~2 km, 30 dBZ 이상, ρhv 0.8 미만, 10분 간격 2회 연속)</label>
         <label><input type="checkbox" id="lGk" checked> GK2A 화재 탐지 (2 km, 1시간)</label>
         <label><input type="checkbox" id="lVi" checked> VIIRS 화재 탐지 (375 m, 위성 통과 시각)</label>
-        <label><input type="checkbox" id="lWind" checked> AWS 바람 (1시간 평균, 63개 관측소)</label>
+        <label><input type="checkbox" id="lWind" checked> AWS 풍향·풍속 (1시간 평균, 63개 관측소)</label>
         <label><input type="checkbox" id="lDnbr"> Landsat dNBR 연소 심도 (진화 후 영상)</label>
         <label><input type="checkbox" id="lBurn"> 최종 연소 범위 (Landsat, 59,752 ha)</label>
       </div>
@@ -185,48 +185,48 @@ aside{min-width:0; display:flex; flex-direction:column; gap:10px; overflow:auto}
     <div class="card">
       <h2>범례</h2>
       <div class="legend">
-        <div><span class="sw" style="background:var(--fire)"></span>긴급: 화재 도달(GK2A 2.5 km 안) 또는 1시간 안 도달 예측</div>
-        <div><span class="sw" style="background:var(--alarm)"></span>경보: 레이더 저층 연기 기둥 핵(8 km 안, 최근 6시간) 또는 예측 시간 안 도달</div>
-        <div><span class="sw" style="background:var(--watch)"></span>주의: 레이더 심층 연기 기둥(5 km 안, 에코 정점고도 3.5 km 이상) 또는 6시간 안 도달 예측</div>
-        <div><span class="sw" style="background:var(--notice)"></span>관심: GK2A 화점 20 km 안(최근 2시간)</div>
+        <div><span class="sw" style="background:var(--fire)"></span>긴급: 화재 도달(GK2A 2.5 km 이내) 또는 1시간 이내 도달 예측</div>
+        <div><span class="sw" style="background:var(--alarm)"></span>경보: 레이더 저층 연기 기둥 핵(8 km 이내, 최근 6시간) 또는 예측 시간 이내 도달</div>
+        <div><span class="sw" style="background:var(--watch)"></span>주의: 레이더 심층 연기 기둥(5 km 이내, 에코 정점고도 3.5 km 이상) 또는 6시간 이내 도달 예측</div>
+        <div><span class="sw" style="background:var(--notice)"></span>관심: GK2A 화점 20 km 이내(최근 2시간)</div>
         <div><span class="sw" style="background:var(--wait)"></span>정상</div>
         <div><span class="sw" style="background:#c2185b;opacity:.45;border-color:#c2185b;border-radius:2px"></span>예측 확산 범위 (활성 화점별 바람 타원)</div>
         <div><span class="sw" style="background:transparent;border-color:var(--out)"></span>레이더 분석 범위 외</div>
-        <div><span class="sw" style="background:rgba(121,85,72,0.55);border-radius:1px;border-color:rgba(121,85,72,0.55)"></span>레이더 연기 에코가 있는 1 km 칸</div>
-        <div><span class="sw" style="background:transparent;border-radius:1px;border-color:#5e35b1;border-width:2px"></span>레이더 심층 연기 기둥 1 km 칸</div>
-        <div><span class="sw" style="background:var(--core);border-radius:1px;border-color:#7a5a00"></span>레이더 저층 연기 기둥 핵이 있는 1 km 칸</div>
+        <div><span class="sw" style="background:rgba(121,85,72,0.55);border-radius:1px;border-color:rgba(121,85,72,0.55)"></span>레이더 연기 에코가 탐지된 1 km 격자</div>
+        <div><span class="sw" style="background:transparent;border-radius:1px;border-color:#5e35b1;border-width:2px"></span>레이더 심층 연기 기둥 1 km 격자</div>
+        <div><span class="sw" style="background:var(--core);border-radius:1px;border-color:#7a5a00"></span>레이더 저층 연기 기둥 핵이 탐지된 1 km 격자</div>
         <div>에코 정점고도 3 km <span class="bar"></span> 9 km</div>
         <div>해발 0 m <span class="bar" id="elevbar"></span> 1,900 m</div>
         <div><span style="width:22px;height:0;border-top:3px solid #AA00FF;flex:none"></span>경북 도계 · <span style="width:22px;height:0;border-top:2px solid #00838F;flex:none"></span>시군 경계 · <span style="width:16px;height:0;border-top:1px solid var(--map-ink);flex:none;opacity:.6"></span>시도 경계</div>
-        <div><span class="sw" style="background:#ff3b1f;border-color:#ff3b1f;width:7px;height:7px"></span>GK2A 탐지 (현재 시각 포함 시간대), 흐린 점은 이전 시간</div>
-        <div><span class="sw" style="background:#00a6c8;border-color:#00566a;border-radius:1px;width:7px;height:7px"></span>VIIRS 탐지 (최근 3시간 안 통과), 흐린 점은 그 이전</div>
-        <div>AWS 바람 (화살표 = 바람이 불어 가는 방향) <span style="color:#2c7fb8">━</span>&lt;3 <span style="color:#41ab5d">━</span>3~6 <span style="color:#e6550d">━</span>6~9 <span style="color:#a50f15">━</span>9 m/s 이상</div>
+        <div><span class="sw" style="background:#ff3b1f;border-color:#ff3b1f;width:7px;height:7px"></span>GK2A 탐지 (현재 시각이 포함된 시간대), 연한 점 = 이전 시간대</div>
+        <div><span class="sw" style="background:#00a6c8;border-color:#00566a;border-radius:1px;width:7px;height:7px"></span>VIIRS 탐지 (최근 3시간 이내 통과), 연한 점 = 그 이전 통과</div>
+        <div>AWS 풍향·풍속 (화살표 = 풍하 방향) <span style="color:#2c7fb8">━</span>&lt;3 <span style="color:#41ab5d">━</span>3~6 <span style="color:#e6550d">━</span>6~9 <span style="color:#a50f15">━</span>9 m/s 이상</div>
         <div>dNBR <span class="sw" style="background:rgb(246,215,67);border-radius:1px"></span>0.27~0.44 <span class="sw" style="background:rgb(240,138,36);border-radius:1px"></span>0.44~0.66 <span class="sw" style="background:rgb(163,32,27);border-radius:1px"></span>0.66 이상</div>
       </div>
     </div>
     <div class="card">
       <h2 id="rollTitle">경보·도달 순서</h2>
       <div class="roll"><table>
-        <thead><tr><th>유산</th><th>S3 경보</th><th>도달</th><th style="text-align:right">선행</th></tr></thead>
+        <thead><tr><th>문화유산</th><th>S3 경보</th><th>도달</th><th style="text-align:right">선행시간</th></tr></thead>
         <tbody id="roll"></tbody></table></div>
     </div>
     <div class="card notes">
       <h2>유의 사항</h2>
       <p><b>실시간 감시 체계.</b> 운영 PC가 10분 주기로 기상청 API에서 면봉산 레이더 체적 주사 자료, 천리안2A호(GK2A) 산불 탐지 산출물, 자동기상관측(AWS) 자료를 수집하여 동일한 판정 규칙을 적용한다. 본 페이지는 5분 주기로 판정 결과를 갱신한다. 감시 영역 부근에 화재 화소가 없는 평시에는 레이더 자료를 1시간 주기로 수집한다.</p>
-      <p><b>확산 예측(간이 모형).</b> 활성 화점(GK2A 최근 1시간, VIIRS 최근 3시간)마다 최근접 AWS의 풍향·풍속을 적용하여 타원형 확산 범위를 산정한다. 화두 확산속도(head fire rate of spread)는 0.85 × 풍속(m/s 입력, km/h 출력)으로 두었으며, 이 계수는 2025년 3월 25일 6시간 동안의 관측 확산거리 46.6 km에 맞추어 보정한 값이다. 타원의 장단축비(length-to-breadth ratio)는 Alexander(1985) 식을 따른다.</p>
-      <p><b>경보 4단계(관심·주의·경보·긴급).</b> 관심은 최근 2시간 이내 GK2A 화재 화소가 유산 반경 20 km 안에서 탐지된 경우이며, 레이더 수집 주기를 10분으로 전환하는 조건과 같다. 주의는 레이더 15 dBZ 에코 정점고도(echo top height)가 3.5 km 이상인 심층 연기 기둥이 반경 5 km 안에 있거나 6시간 이내 도달이 예측된 경우이다. 경보는 S3 연기 기둥 핵이 탐지되었거나 예측 선행시간 이내 도달이 예측된 경우이다. 긴급은 화재 도달이 판정되었거나 1시간 이내 도달이 예측된 경우이다. 관심과 주의의 연기 기둥 조건은 오경보율이 높아 광역 예비 신호로만 사용한다.</p>
-      <p><b>실시간 판정의 보정.</b> 포항 제철소·철강산업단지(포스코 포항제철소 일대)는 GK2A가 상시 고온 열원(persistent industrial heat source)을 매일 화재 화소로 탐지하므로 실시간 판정에서 제외한다. 따라서 이 구역 안에서 발생한 실제 산불은 위성 기준으로 판정되지 않는다. 또한 강수 에코와 지형 반사 등 기상·비기상 에코에 의한 오경보를 줄이기 위해, 실시간 판정에서는 레이더 신호(S3 핵, 심층 연기 기둥)를 최근 2시간 이내 GK2A 화재 화소가 반경 20 km 안에서 탐지된 유산에만 적용한다.</p>
+      <p><b>확산 예측(간이 모형).</b> 활성 화점(GK2A 최근 1시간, VIIRS 최근 3시간)마다 최근접 AWS의 풍향·풍속을 적용하여 타원형 확산 범위를 산정한다. 화두 확산속도(head fire rate of spread)는 0.85 × 풍속(m/s 입력, km/h 출력)으로 설정하였으며, 이 계수는 2025년 3월 25일 6시간 동안의 관측 확산거리 46.6 km에 맞추어 보정한 값이다. 타원의 장단축비(length-to-breadth ratio)는 Alexander(1985) 식을 따른다.</p>
+      <p><b>경보 4단계(관심·주의·경보·긴급).</b> 관심은 최근 2시간 이내 GK2A 화재 화소가 문화유산 반경 20 km 이내에서 탐지된 경우이며, 레이더 수집 주기를 10분으로 전환하는 조건과 같다. 주의는 레이더 15 dBZ 에코 정점고도(echo top height)가 3.5 km 이상인 심층 연기 기둥이 반경 5 km 이내에 있거나 6시간 이내 도달이 예측된 경우이다. 경보는 S3 연기 기둥 핵이 탐지되었거나 예측 선행시간 이내 도달이 예측된 경우이다. 긴급은 화재 도달이 판정되었거나 1시간 이내 도달이 예측된 경우이다. 관심과 주의의 연기 기둥 조건은 오경보율이 높아 광역 예비 신호로만 사용한다.</p>
+      <p><b>실시간 판정의 보정.</b> 포항 제철소·철강산업단지(포스코 포항제철소 일대)는 GK2A가 상시 고온 열원(persistent industrial heat source)을 매일 화재 화소로 탐지하므로 실시간 판정에서 제외한다. 따라서 이 구역 내에서 발생한 실제 산불은 위성 기준으로 판정되지 않는다. 또한 강수 에코와 지형 반사 등 기상·비기상 에코에 의한 오경보를 줄이기 위해, 실시간 판정에서는 레이더 신호(S3 핵, 심층 연기 기둥)를 최근 2시간 이내 GK2A 화재 화소가 반경 20 km 이내에서 탐지된 문화유산에만 적용한다.</p>
       <p><b>레이더 연기 기둥 신호(S1~S3).</b> 레이어 목록에서는 S1을 '레이더 연기 에코', S2를 '레이더 심층 연기 기둥', S3을 '레이더 저층 연기 기둥 핵'으로 표기한다. 본 디지털트윈의 '경보' 단계는 S3을, '주의' 단계의 연기 기둥 조건은 S2를 사용한다.</p>
-      <table style="width:100%;border-collapse:collapse;font-size:12px;margin:4px 0 8px"><tr><th style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">신호</th><th style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">판정 조건</th><th style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">2025년 경북 산불 평가 결과</th></tr><tr><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">S1 연기 에코</td><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">유산 반경 5 km 안에 반사도 15 dBZ 이상, ρhv 0.8 미만인 에코가 1개 체적 주사에서 나타남</td><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">화재 기간 내내 켜져 지점 간 구분력이 없음</td></tr><tr><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">S2 심층 연기 기둥</td><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">유산 반경 5 km 안에 15 dBZ 에코 정점고도가 해발 3.5 km 이상인 기둥이 나타남</td><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">도달 지점 대부분에서 먼저 나타나지만, 미연소 대조 지점의 일별 오경보율이 76~100%임</td></tr><tr><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">S3 연기 기둥 핵(채택)</td><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">S1·S2보다 엄격한 아래 표의 네 조건을 유산 반경 8 km 안에서 연속 2개 체적 주사(10분 간격)에 만족함</td><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">오경보가 가장 적고, 도달 지점의 약 90%에서 위성 도달 판정보다 먼저(선행시간 중앙값 약 2시간) 나타남</td></tr></table>
+      <table style="width:100%;border-collapse:collapse;font-size:12px;margin:4px 0 8px"><tr><th style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">신호</th><th style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">판정 조건</th><th style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">2025년 경북 산불 평가 결과</th></tr><tr><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">S1 연기 에코</td><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">문화유산 반경 5 km 이내에 반사도 15 dBZ 이상, ρhv 0.8 미만인 에코가 1개 체적 주사에서 탐지됨</td><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">화재 기간 전반에 상시 탐지되어 지점 간 판별력이 없음</td></tr><tr><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">S2 심층 연기 기둥</td><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">문화유산 반경 5 km 이내에 15 dBZ 에코 정점고도가 해발 3.5 km 이상인 연기 기둥이 탐지됨</td><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">도달 지점 대부분에서 화재 도달에 선행하여 탐지되나, 미연소 대조 지점의 일별 오경보율이 76~100%임</td></tr><tr><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">S3 연기 기둥 핵(채택)</td><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">S1·S2보다 엄격한 아래 표의 네 조건을 문화유산 반경 8 km 이내에서 연속 2개 체적 주사(10분 간격)에 만족함</td><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">오경보가 가장 적고, 도달 지점의 약 90%에서 위성 도달 판정에 선행하여(선행시간 중앙값 약 2시간) 탐지됨</td></tr></table>
       <p><b>S3 연기 기둥 핵의 판정 조건.</b></p>
-      <table style="width:100%;border-collapse:collapse;font-size:12px;margin:4px 0 8px"><tr><th style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">조건</th><th style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">기준</th><th style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">의미</th></tr><tr><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">고도</td><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">1~2 km</td><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">산불 연기 기둥의 하층</td></tr><tr><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">반사도</td><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">30 dBZ 이상</td><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">재·불티 같은 큰 입자의 강한 후방 산란</td></tr><tr><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">동일편파 상관계수(ρhv)</td><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">0.8 미만</td><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">강수 입자(ρhv 0.95 이상)가 아닌 형상이 불규칙한 연기·재 입자</td></tr><tr><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">에코 정점고도</td><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">해발 3 km 이상</td><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">강한 화재 열에 의해 연기 기둥이 높이 상승한 상태</td></tr></table>
-      <p><b>S1 연기 에코.</b> 레이더 1 km 격자 기둥(해발 0~16 km, 500 m 층) 안에 반사도 15 dBZ 이상이면서 동일편파 상관계수(ρhv)가 0.8 미만인 체적 요소가 하나라도 있는 칸이다. ρhv가 낮다는 것은 강수 입자처럼 형상이 균일한 산란체가 아니라 연기·재·불티처럼 형상과 크기가 불규칙한 산란체임을 뜻한다. 화재 기간에는 화재 지역 전반에서 상시 나타나므로 개별 유산의 경보에는 쓰지 않고, 연기가 퍼진 범위를 확인하는 참고 레이어로 제공한다. 지도에서는 갈색 칸으로 표시한다.</p>
-      <p><b>S2 심층 연기 기둥.</b> 15 dBZ 에코 정점고도가 해발 3.5 km 이상인 칸으로, 강한 화재 열에 의한 상승기류로 연기 기둥이 대류권 중층까지 발달한 상태를 나타낸다. 도달 지점 대부분에서 화재 도달 전에 나타나 선행성이 크지만(선행시간 약 2.8시간), ρhv 조건이 없어 강수 구름에도 나타나며 미연소 대조 지점의 일별 오경보율이 76~100%로 높다. 따라서 4단계 중 '주의' 단계의 광역 예비 신호로만 사용하며(유산 반경 5 km), 지도에서는 보라색 테두리 칸으로 표시한다.</p>
-      <p><b>S3 경보.</b> 유산 반경 8 km 안에서 고도 1~2 km에 반사도 30 dBZ 이상, 동일편파 상관계수(ρhv) 0.8 미만이고 에코 정점고도가 해발 3 km 이상인 반사도 핵이 연속 2개 체적 주사에서 나타나면 발령하고, 마지막 신호 이후 6시간 동안 유지한다. 강수 에코 시간대(24일 06~18시, 27일 15시~28일 02시, 28일 06시 이후)는 판정에서 제외하였으며, 26일 09:20~15:10은 레이더 자료가 결측이다.</p>
-      <p><b>화재 도달.</b> GK2A 화재 화소 중심이 유산 반경 2.5 km 안에서 2시간 연속 탐지된 첫 관측 시각으로 정의한다. 공간 해상도 2 km, 시간 해상도 1시간의 자료이므로 건축물에 화염이 접촉한 시각과는 다르다.</p>
+      <table style="width:100%;border-collapse:collapse;font-size:12px;margin:4px 0 8px"><tr><th style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">조건</th><th style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">기준</th><th style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">의미</th></tr><tr><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">고도</td><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">1~2 km</td><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">산불 연기 기둥의 하층</td></tr><tr><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">반사도</td><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">30 dBZ 이상</td><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">재·불티 등 대형 입자에 의한 강한 후방산란</td></tr><tr><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">동일편파 상관계수(ρhv)</td><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">0.8 미만</td><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">강수 입자(ρhv 0.95 이상)가 아닌 형상이 불규칙한 연기·재 입자</td></tr><tr><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">에코 정점고도</td><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">해발 3 km 이상</td><td style="border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top">화재 열에 의한 상승기류로 연기 기둥이 높게 발달한 상태</td></tr></table>
+      <p><b>S1 연기 에코.</b> 레이더 1 km 격자 기둥(해발 0~16 km, 500 m 층) 안에 반사도 15 dBZ 이상이면서 동일편파 상관계수(ρhv)가 0.8 미만인 체적 요소가 하나 이상 포함된 격자이다. ρhv가 낮다는 것은 강수 입자처럼 형상이 균일한 산란체가 아니라 연기·재·불티처럼 형상과 크기가 불규칙한 산란체임을 뜻한다. 화재 기간에는 화재 지역 전반에서 상시 탐지되므로 개별 문화유산의 경보에는 사용하지 않고, 연기 확산 범위를 확인하는 참고 레이어로 제공한다. 지도에서는 갈색 격자로 표시한다.</p>
+      <p><b>S2 심층 연기 기둥.</b> 15 dBZ 에코 정점고도가 해발 3.5 km 이상인 격자로, 강한 화재 열에 의한 상승기류로 연기 기둥이 대류권 중층까지 발달한 상태를 나타낸다. 도달 지점 대부분에서 화재 도달 전에 탐지되어 선행성이 크지만(선행시간 약 2.8시간), ρhv 조건이 없어 강수 구름에서도 탐지되며 미연소 대조 지점의 일별 오경보율이 76~100%로 높다. 따라서 4단계 중 '주의' 단계의 광역 예비 신호로만 사용하며(문화유산 반경 5 km), 지도에서는 보라색 테두리 격자로 표시한다.</p>
+      <p><b>S3 경보.</b> 문화유산 반경 8 km 이내에서 고도 1~2 km에 반사도 30 dBZ 이상, 동일편파 상관계수(ρhv) 0.8 미만이고 에코 정점고도가 해발 3 km 이상인 반사도 핵이 연속 2개 체적 주사에서 탐지되면 발령하고, 마지막 신호 이후 6시간 동안 유지한다. 강수 에코 시간대(24일 06~18시, 27일 15시~28일 02시, 28일 06시 이후)는 판정에서 제외하였으며, 26일 09:20~15:10은 레이더 자료가 결측이다.</p>
+      <p><b>화재 도달.</b> GK2A 화재 화소 중심이 문화유산 반경 2.5 km 이내에서 2시간 연속 탐지된 첫 관측 시각으로 정의한다. 공간 해상도 2 km, 시간 해상도 1시간의 자료이므로 건축물에 화염이 접촉한 시각과는 다르다.</p>
       <p><b>선행시간(lead time).</b> 선행시간은 화재 도달 시각에서 S3 경보 발령 시각을 뺀 값이며, S3 경보는 도달 6시간 전부터 탐색한다. 피해 여부는 언론 보도를 기준으로 하였다.</p>
       <p><b>dNBR(정규연소비 차이).</b> 산불 전후 Landsat 영상의 정규연소비(NBR) 차이로 산정한 연소 강도이며, 진화 이후의 최종 상태를 나타낸다. 재생 시각과 관계없이 동일한 영상이 표시된다.</p>
-      <p><b>AWS 바람.</b> 기상청 경북 관측소 63곳의 1시간 평균 풍향·풍속이다. 순간최대풍속(사건 중 최대 26.1 m/s)은 1시간 평균 풍속보다 현저히 크다.</p>
+      <p><b>AWS 풍향·풍속.</b> 기상청 경북 관측소 63곳의 1시간 평균 풍향·풍속이다. 순간최대풍속(사건 중 최대 26.1 m/s)은 1시간 평균 풍속보다 현저히 크다.</p>
       <p><b>자료 출처.</b> 기상청 면봉산 S밴드 이중편파 레이더(원시 자료, 1 km 격자), 기상청 AWS·ASOS, GK2A 산불 탐지 산출물, VIIRS 화재 탐지(NASA FIRMS), Landsat dNBR·연소 범위, 국가유산청 국가유산 공개 자료, 국토지리정보원 10 m 수치표고모델(DEM).</p>
     </div>
   </aside>
@@ -313,20 +313,20 @@ async function loadLive(){
     if (!r.ok) throw new Error(r.status);
     LV = await r.json(); if (!LV.heritage) LV.heritage = {};
     for (const k of ["gk2a", "aws", "top", "core"]) if (!LV[k]) LV[k] = [];
-    const radar = LV.radar_time ? `레이더 ${LV.radar_time.slice(5)}` : "레이더 없음";
-    $("liveinfo").textContent = LV.updated ? `갱신 ${LV.updated} KST · ${radar} · GK2A ${LV.gk2a_time ? LV.gk2a_time.slice(5) : "없음"} · AWS ${LV.aws_time ? LV.aws_time.slice(11, 16) : "없음"} · ${LV.mode === "active" ? "산불 감지: 레이더 10분 간격" : "감시: 레이더 1시간 간격"}`
-      : "실시간 연결 준비 중입니다. 첫 자료가 올라오면 자동으로 표시됩니다.";
+    const radar = LV.radar_time ? `레이더 ${LV.radar_time.slice(5)}` : "레이더 자료 결측";
+    $("liveinfo").textContent = LV.updated ? `갱신 ${LV.updated} KST · ${radar} · GK2A ${LV.gk2a_time ? LV.gk2a_time.slice(5) : "없음"} · AWS ${LV.aws_time ? LV.aws_time.slice(11, 16) : "없음"} · ${LV.mode === "active" ? "산불 탐지: 레이더 10분 주기" : "평시 감시: 레이더 1시간 주기"}`
+      : "실시간 연결 준비 중(첫 자료 수신 시 자동 표시)";
     if (LV.status_msg) $("liveinfo").textContent += " · " + LV.status_msg + (LV.status === "paused" && LV.paused_at ? ` (${LV.paused_at.slice(11)}부터)` : "");
   } catch (e) {
     LV = {heritage: {}, gk2a: [], aws: [], top: [], core: []};
-    $("liveinfo").textContent = "실시간 자료를 불러오지 못했습니다. 인터넷 연결을 확인하거나 GitHub 페이지(kounghoonnam.github.io/WebGIS_GB_wildFire)에서 열어 주세요.";
+    $("liveinfo").textContent = "실시간 자료 수신 실패. 인터넷 연결 확인 또는 GitHub 페이지(kounghoonnam.github.io/WebGIS_GB_wildFire)에서 실행 필요.";
   }
   if (src === "live") refresh();
 }
 function setSource(m){
   src = m; $("sLive").classList.toggle("on", m === "live"); $("sReplay").classList.toggle("on", m === "replay");
   document.querySelector(".timeline").hidden = m === "live"; play(false); clearInterval(liveTimer);
-  if (m === "live"){ LV = LV || {heritage: {}, gk2a: [], aws: [], top: [], core: []}; $("liveinfo").textContent = "실시간 자료를 불러오는 중입니다.";
+  if (m === "live"){ LV = LV || {heritage: {}, gk2a: [], aws: [], top: [], core: []}; $("liveinfo").textContent = "실시간 자료 수신 중";
     refresh(); loadLive(); liveTimer = setInterval(loadLive, 5 * 60000); }
   else { $("liveinfo").textContent = "2025년 3월 22일 11:00 ~ 28일 17:00 KST, 면봉산 레이더 1,094개 볼륨"; setFrame(fi); }
 }
@@ -339,8 +339,8 @@ function liveRadar(){
 function refresh(){
   if (src === "live"){
     $("cd").textContent = LV && LV.updated ? LV.updated.slice(0, 10).replaceAll("-", ".") : "–"; $("ct").textContent = LV && LV.updated ? LV.updated.slice(11, 16) : "--:--";
-    $("flag").hidden = false; $("flag").textContent = LV && LV.status === "paused" ? "실시간 · 갱신 중지(API 한도)" : LV && LV.status === "partial" ? "실시간 · 일부 자료 없음"
-      : LV && LV.mode === "active" ? "실시간 · 산불 감지" : "실시간 · 감시 중";
+    $("flag").hidden = false; $("flag").textContent = LV && LV.status === "paused" ? "실시간 · 갱신 중지(API 호출 한도 초과)" : LV && LV.status === "partial" ? "실시간 · 일부 자료 결측"
+      : LV && LV.mode === "active" ? "실시간 · 산불 탐지" : "실시간 · 감시 중";
     liveRadar(); computeForecast(); draw(); updateCounts(); }
   else setFrame(fi);
 }
@@ -384,8 +384,8 @@ function computeForecast(){
   FC = {pts, eta, H: +$("fH").value};
   $("fWv").textContent = ws.toFixed(1) + "×"; $("fDv").textContent = (dd > 0 ? "+" : "") + dd + "°";
   const maxU = pts.reduce((a, p) => Math.max(a, p.U), 0);
-  $("fcinfo").textContent = pts.length ? `활성 화점 ${pts.length}개(2 km 묶음) · 최대 적용 풍속 ${maxU.toFixed(1)} m/s · 머리 확산 ${(K_ROS*maxU).toFixed(1)} km/h`
-    : "현재 활성 화점이 없어 예측할 확산이 없습니다.";
+  $("fcinfo").textContent = pts.length ? `활성 화점 ${pts.length}개(2 km 군집) · 최대 적용 풍속 ${maxU.toFixed(1)} m/s · 화두 확산속도 ${(K_ROS*maxU).toFixed(1)} km/h`
+    : "활성 화점 없음(확산 예측 대상 없음)";
 }
 function drawForecast(){
   if (!cv.width || !cv.height) return;                 // canvas hidden (3D view or zero-size pane)
@@ -399,7 +399,7 @@ function drawForecast(){
 }
 
 // ---------- alert levels and recommended actions ----------
-const ACT = {4: "인원 대피·출입 통제, 소방 방어선·살수", 3: "방염포 설치, 동산 유산 이송 준비, 주변 가연물 제거", 2: "상황 감시, 비상연락망·이송 장비 점검", 1: "소화 용수·이동식 살수 장비 점검"};
+const ACT = {4: "인원 대피·출입 통제, 소방 방어선·살수", 3: "방염포 설치, 동산 문화유산 이송 준비, 주변 가연물 제거", 2: "상황 감시, 비상연락망·이송 장비 점검", 1: "소화 용수·이동식 살수 장비 점검"};
 const LVN = ["정상", "관심", "주의", "경보", "긴급"], LVC = ["var(--line)", "var(--notice)", "var(--watch)", "var(--alarm)", "var(--fire)"];
 // 관심 (GK2A within 20 km, last 2 h) and 주의 deep plume (15 dBZ top >= 3.5 km within 5 km), cached per frame
 const L4C = {key: null};
@@ -426,9 +426,9 @@ function level(h){
   const q = lv4(), gate = src !== "live" || q.w[h.i];        // live: radar signals count only near a GK2A fire pixel (20 km, 2 h)
   if (st === "alarm" && gate) return [3, "레이더 저층 연기 기둥 핵"];
   if (eta !== undefined && eta <= FC.H) return [3, `예상 도달 ${eta.toFixed(1)}시간`];
-  if (q.d[h.i] && gate) return [2, "심층 연기 기둥 5 km 안"];
+  if (q.d[h.i] && gate) return [2, "심층 연기 기둥 5 km 이내"];
   if (eta !== undefined && eta <= 6) return [2, `예상 도달 ${eta.toFixed(1)}시간`];
-  if (q.w[h.i]) return [1, "GK2A 화점 20 km 안"];
+  if (q.w[h.i]) return [1, "GK2A 화점 20 km 이내"];
   return [0, ""];
 }
 const ackKey = h => "ack:" + h.n + ":" + h.x;
@@ -438,13 +438,13 @@ function buildAlerts(){
   const L = [0, 0, 0, 0, 0], rows = [];
   for (const h of shown()){ const [lv, why] = level(h); L[lv]++; if (lv > 0) rows.push([h, lv, why]); }
   for (let k = 0; k < 5; k++) $("L" + k).textContent = L[k];
-  $("alTitle").textContent = `경보 단계 · ${mode === "path" ? "산불 경로 유산" : "경북 전체 유산"}`;
+  $("alTitle").textContent = `경보 단계 · ${mode === "path" ? "산불 경로 문화유산" : "경북 전체 문화유산"}`;
   rows.sort((a, b) => b[1] - a[1] || (FC.eta.get(a[0].i) ?? 99) - (FC.eta.get(b[0].i) ?? 99));
   const C = LVC, N = LVN;
   $("alerts").innerHTML = rows.slice(0, 120).map(([h, lv, why]) => `<tr data-i="${h.i}"><td><span class="pill" style="--c:${C[lv]}">${N[lv]}</span> ${h.n}<br><span style="color:var(--muted);font-size:11px">${h.k} · ${h.s}</span></td>
     <td style="font-size:12px">${why}</td><td style="font-size:12px">${ACT[lv]}</td><td><input type="checkbox" aria-label="조치 확인" ${ackGet(h) ? "checked" : ""}></td></tr>`).join("")
     + (rows.length > 120 ? `<tr><td colspan="4" style="color:var(--muted)">외 ${rows.length - 120}건</td></tr>` : "")
-    + (rows.length ? "" : `<tr><td colspan="4" style="color:var(--muted)">경보 대상 유산이 없습니다.</td></tr>`);
+    + (rows.length ? "" : `<tr><td colspan="4" style="color:var(--muted)">경보 대상 문화유산 없음</td></tr>`);
   for (const tr of $("alerts").querySelectorAll("tr[data-i]")){ const h = H[+tr.dataset.i], cb = tr.querySelector("input");
     cb.onclick = e => e.stopPropagation(); cb.onchange = e => ackSet(h, e.target.checked);
     tr.onclick = () => select(h.i, true); }
@@ -555,8 +555,8 @@ function updateCounts(){
     $("kAlarm").textContent = a; $("kFire").textContent = f; $("kHit").textContent = "–"; $("kMiss").textContent = "–";
     const w = inputs().wind.reduce((b, x) => x[2] > b ? x[2] : b, -1);
     const g = (LV && LV.aws || []).reduce((b, x) => x[5] !== null && x[5] > b ? x[5] : b, -1);
-    $("windline").textContent = w >= 0 ? `AWS 최대 1시간 평균 풍속 ${w.toFixed(1)} m/s${g >= 0 ? `, 최대 순간풍속 ${g.toFixed(1)} m/s` : ""}` : "AWS 자료 없음";
-    $("cntTitle").textContent = (mode === "path" ? "산불 경로 유산" : "경북 전체 유산") + " · 실시간"; return; }
+    $("windline").textContent = w >= 0 ? `AWS 최대 1시간 평균 풍속 ${w.toFixed(1)} m/s${g >= 0 ? `, 최대 순간풍속 ${g.toFixed(1)} m/s` : ""}` : "AWS 자료 결측";
+    $("cntTitle").textContent = (mode === "path" ? "산불 경로 문화유산" : "경북 전체 문화유산") + " · 실시간"; return; }
   const list = shown(); let a = 0, f = 0, hit = 0, miss = 0;
   for (const h of list){ const s = state(h); if (s === "alarm") a++; if (s === "fire") f++;
     const o = outcome(h); if (o && h.a1t <= tms[fi]){ if (o === "hit") hit++; else miss++; } }
@@ -564,17 +564,17 @@ function updateCounts(){
   const hi = Math.floor((tms[fi] - WN0) / 3600000); let best = [-1, ""];
   if (hi >= 0 && hi < WN.spd[0].length) WN.spd.forEach((r, k) => { if (r[hi] > best[0]) best = [r[hi], WN.stations[k][0]]; });
   $("windline").textContent = best[0] >= 0 ? `AWS 최대 1시간 평균 풍속 ${(best[0]/10).toFixed(1)} m/s (${best[1]})` : "";
-  $("cntTitle").textContent = (mode === "path" ? "산불 경로 유산" : "경북 전체 유산") + " · " + fmtT(tms[fi]);
+  $("cntTitle").textContent = (mode === "path" ? "산불 경로 문화유산" : "경북 전체 문화유산") + " · " + fmtT(tms[fi]);
 }
 function buildRoll(){
   const alT = h => h.alwt ?? (h.al !== null && h.al !== undefined ? tms[h.al] : null);
   const list = shown().filter(h => h.rg && (alT(h) || h.a1t)).sort((a,b) => (alT(a) ?? 9e15) - (alT(b) ?? 9e15) || (a.a1t ?? 9e15) - (b.a1t ?? 9e15));
-  $("rollTitle").textContent = `경보·도달 순서 (${list.length}건, 레이더 범위 안)`;
+  $("rollTitle").textContent = `경보·도달 순서 (${list.length}건, 레이더 분석 범위 내)`;
   $("roll").innerHTML = list.map(h => {
     const al = alT(h) ? fmtT(alT(h)) : "–";
-    const a1 = h.a1t ? (h.a1t < tms[0] ? "22일 11시 전" : fmtT(h.a1t)) : "미도달";
+    const a1 = h.a1t ? (h.a1t < tms[0] ? "22일 11시 이전" : fmtT(h.a1t)) : "미도달";
     const o = outcome(h);
-    const lead = o === "hit" ? h.lead.toFixed(1) + "h" : o === "miss" ? '<span class="pill" style="--c:var(--miss)">놓침</span>' : "";
+    const lead = o === "hit" ? h.lead.toFixed(1) + "h" : o === "miss" ? '<span class="pill" style="--c:var(--miss)">미탐지</span>' : "";
     return `<tr data-i="${h.i}"><td>${h.n}<br><span style="color:var(--muted);font-size:11px">${h.k} · ${h.s}</span>${h.d ? `<br><span class="dmg">${h.d}</span>` : ""}</td>
       <td class="num">${al}</td><td class="num">${a1}</td><td class="num">${lead}</td></tr>`; }).join("");
   for (const tr of $("roll").querySelectorAll("tr")) tr.onclick = () => select(+tr.dataset.i, true);
@@ -620,7 +620,7 @@ function setFrame(k){
   fi = Math.max(0, Math.min(NF-1, k)); $("slider").value = fi;
   const s = fmtT(tms[fi]).split(" "); $("cd").textContent = "2025." + s[0].split(".").map(v => v.padStart(2,"0")).join("."); $("ct").textContent = s[1];
   const gap = (fi > 0 && tms[fi] - tms[fi-1] > 1800000) || (fi < NF-1 && tms[fi+1] - tms[fi] > 1800000);
-  const flag = D.rain[fi] ? "비 에코 · 판정 제외" : gap ? "레이더 자료 공백 (26일 09:20~15:10)" : "";
+  const flag = D.rain[fi] ? "강수 에코 · 판정 제외" : gap ? "레이더 자료 결측 (26일 09:20~15:10)" : "";
   $("flag").hidden = !flag; $("flag").textContent = flag;
   buildRadar(); computeForecast(); draw(); updateCounts(); drawSpark();
 }
@@ -663,7 +663,7 @@ $("zreset").onclick = () => { if (is3d) return; fit(); draw(); };
 $("zkr").onclick = () => { if (is3d) return; fit(EXT); draw(); };
 function pick(e){ const r = cv.getBoundingClientRect(), px = e.clientX - r.left, py = e.clientY - r.top; let best = null, bd = e.pointerType === "touch" ? 18 : 9;
   for (const h of shown()){ const d = Math.hypot(X(h.x) - px, Y(h.y) - py); if (d < bd){ bd = d; best = h; } } return best; }
-const STL = {wait: "대기", alarm: "연기 기둥 핵 경보 중", fire: "화재 도달", out: "레이더 범위 외"};
+const STL = {wait: "대기", alarm: "연기 기둥 핵 경보 발령", fire: "화재 도달", out: "레이더 범위 외"};
 function hover(e){
   const h = pick(e), tip = $("tip"); if (!h){ tip.hidden = true; return; }
   showTip(h, e, cv.getBoundingClientRect());
@@ -671,9 +671,9 @@ function hover(e){
 function showTip(h, e, r){
   const tip = $("tip"), o = outcome(h), lv = level(h);
   tip.innerHTML = `<b>${h.n}</b><br>${h.k} · ${h.s}${h.p ? " · 산불 경로" : ""}<br>현재: ${STL[state(h)]}` +
-    (h.alwt ? `<br>도달 전 연기 기둥 핵 경보: ${fmtT(h.alwt)}` : h.rg && h.al !== null && h.al !== undefined ? `<br>첫 연기 기둥 핵 신호: ${fmtT(tms[h.al])}` : "") +
+    (h.alwt ? `<br>도달 전 연기 기둥 핵 경보: ${fmtT(h.alwt)}` : h.rg && h.al !== null && h.al !== undefined ? `<br>최초 연기 기둥 핵 신호: ${fmtT(tms[h.al])}` : "") +
     (h.a1t ? `<br>화재 도달: ${fmtT(h.a1t)}` : "") + (o === "hit" ? `<br>선행시간: ${h.lead.toFixed(1)}시간` : o === "miss" ? "<br>경보 없이 도달" : "") +
-    (h.db !== null ? `<br>연소 범위까지: ${h.db} km` : "") + (h.z ? `<br>레이더 경보 구역: ${h.z}` : "") + (h.d ? `<br><span class="dmg">피해 보도: ${h.d}</span>` : "") +
+    (h.db !== null ? `<br>연소 범위와의 거리: ${h.db} km` : "") + (h.z ? `<br>레이더 경보 구역: ${h.z}` : "") + (h.d ? `<br><span class="dmg">피해 보도: ${h.d}</span>` : "") +
     (lv[0] ? `<br><b>${LVN[lv[0]]}</b>: ${lv[1]} → ${ACT[lv[0]]}` : "");
   tip.hidden = false;
   let lx = e.clientX - r.left + 14, ly = e.clientY - r.top + 10;
@@ -700,12 +700,12 @@ function volFor(f){
   let e = volCache.get(ch.file);
   if (!e){ e = {ready: false}; volCache.set(ch.file, e);
     (async () => { try {
-      if (!("DecompressionStream" in window)) throw new Error("이 브라우저는 압축 해제를 지원하지 않습니다");
+      if (!("DecompressionStream" in window)) throw new Error("이 브라우저는 압축 해제를 지원하지 않음");
       const r = await fetch(ch.file); if (!r.ok) throw new Error("파일 " + r.status);
       const buf = await new Response(r.body.pipeThrough(new DecompressionStream("gzip"))).arrayBuffer(), u = new Uint32Array(buf), nf = u[0];
       const off = new Uint32Array(nf + 1); for (let i = 0; i < nf; i++) off[i + 1] = off[i] + u[1 + i];
       Object.assign(e, {ready: true, data: u.subarray(1 + nf), off, f0: ch.f0}); volMsg = "";
-    } catch (err) { e.failed = true; volMsg = "층별 레이더 자료를 불러오지 못했습니다 (" + err.message + "). 기둥 표현으로 봅니다."; }
+    } catch (err) { e.failed = true; volMsg = "층별 레이더 자료 수신 실패 (" + err.message + "). 기둥 표현으로 전환함."; }
       if (is3d) update3d(); else draw(); })();
   }
   if (!e.ready) return e.failed ? null : "loading";
@@ -730,7 +730,7 @@ function elevKm(x, y){                                   // nearest 500 m terrai
   if (!T3) return 0; const c = Math.round((x - TR.ext[0]) / (TR.ext[1] - TR.ext[0]) * (TR.nx - 1)), r = Math.round((TR.ext[3] - y) / (TR.ext[3] - TR.ext[2]) * (TR.ny - 1));
   if (c < 0 || r < 0 || c >= TR.nx || r >= TR.ny) return 0; return T3.hgt[r * TR.nx + c] / 1000; }
 async function init3d(){
-  if (T3) return; if (!window.THREE || !THREE.OrbitControls){ $("mapnote").textContent = "3D 라이브러리를 불러오지 못했습니다. 인터넷 연결을 확인해 주세요."; return; }
+  if (T3) return; if (!window.THREE || !THREE.OrbitControls){ $("mapnote").textContent = "3D 라이브러리 로드 실패. 인터넷 연결 확인 필요."; return; }
   const el = $("view3d"), [hImg, tImg] = await Promise.all([loadImg(IMG.th), loadImg(IMG.tt)]);
   const hc = document.createElement("canvas"); hc.width = TR.nx; hc.height = TR.ny; const hx = hc.getContext("2d"); hx.drawImage(hImg, 0, 0);
   const hd = hx.getImageData(0, 0, TR.nx, TR.ny).data, hgt = new Float32Array(TR.nx * TR.ny);
@@ -842,7 +842,7 @@ function update3d(){
       mesh.setColorAt(k, col); if (strong) ns++; else nw++; }
     T3.voxW.count = nw; T3.voxS.count = ns;
     for (const v of [T3.voxW, T3.voxS]){ v.instanceMatrix.needsUpdate = true; v.instanceColor.needsUpdate = true; } }
-  if (is3d) $("mapnote").textContent = volMsg || (V === "loading" ? "층별 레이더 자료를 불러오는 중입니다." : $("mapnote").dataset.n3d);
+  if (is3d) $("mapnote").textContent = volMsg || (V === "loading" ? "층별 레이더 자료 수신 중" : $("mapnote").dataset.n3d);
   T3.plume.count = n; T3.cores.count = nc; T3.plume.instanceMatrix.needsUpdate = true; T3.cores.instanceMatrix.needsUpdate = true;
   if (T3.plume.instanceColor) T3.plume.instanceColor.needsUpdate = true;
   const LCc = [css("--wait"), css("--notice"), css("--watch"), css("--alarm"), css("--fire")]; let np = 0; T3.pinList = [];
@@ -856,9 +856,9 @@ async function toggle3d(){
   is3d = !is3d; $("z3d").textContent = is3d ? "2D" : "3D"; $("z3d").title = is3d ? "2D 보기" : "3D 보기";
   cv.hidden = is3d; $("view3d").hidden = !is3d; $("ex3d").hidden = !is3d; $("pl3d").hidden = !is3d; $("tip").hidden = true;
   for (const id of ["zin", "zout", "zkr"]) $(id).hidden = is3d;
-  $("mapnote").dataset.n3d = "3D: 끌어서 회전, 오른쪽 끌기·두 손가락으로 이동, 휠로 확대. 층별 = 레이더 1 km×1 km×500 m 칸(15 dBZ 이상, 보라 = 연기·재, 하늘색 = 비·구름, 진할수록 강함), 노란 상자 = 레이더 저층 연기 기둥 핵, 막대 = 문화유산(색 = 경보 단계).";
+  $("mapnote").dataset.n3d = "3D: 끌기로 회전, 오른쪽 끌기·두 손가락으로 이동, 휠로 확대. 층별 = 레이더 1 km×1 km×500 m 격자(15 dBZ 이상, 보라 = 연기·재, 하늘색 = 강수·구름, 진할수록 반사도가 큼), 노란 상자 = 레이더 저층 연기 기둥 핵, 막대 = 문화유산(색 = 경보 단계).";
   $("mapnote").textContent = is3d ? $("mapnote").dataset.n3d
-    : "점선 사각형 = 레이더 분석 범위. 범위 외 유산은 회색 빈 원. 끌어서 이동, 휠·두 손가락으로 확대, 유산을 누르면 정보가 뜹니다.";
+    : "점선 사각형 = 레이더 분석 범위. 범위 외 문화유산은 회색 빈 원. 끌기로 이동, 휠·두 손가락으로 확대, 문화유산 선택 시 속성 정보 표시.";
   if (is3d){ await init3d(); update3d(); } else { resize(); draw(); }
 }
 $("z3d").onclick = toggle3d;
