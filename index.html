@@ -741,6 +741,27 @@ document.addEventListener("keydown", e => { if (e.target.tagName === "INPUT" && 
 matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { drawSpark(); draw(); });
 new MutationObserver(() => { drawSpark(); draw(); }).observe(document.documentElement, {attributes: true, attributeFilter: ["data-theme"]});
 
+
+// scale bar and north arrow on the 2D map (2026-11-06); map coordinates are UTM 52N km, north up
+function drawDecor(){
+  if (is3d || !view || !view.s || !cv.width) return;
+  const w = cv.clientWidth, h = cv.clientHeight, ink = css("--map-ink"), halo = css("--panel");
+  const nice = [1, 2, 5, 10, 20, 25, 50, 100, 200], target = 110 / view.s; let L = nice[0];
+  for (const v of nice) if (v <= target) L = v;
+  const px = L * view.s, x0 = 14, y0 = h - 22;
+  cx.save(); cx.lineCap = "butt";
+  cx.fillStyle = halo; cx.globalAlpha = 0.85; cx.fillRect(x0 - 6, y0 - 20, px + 46, 30); cx.globalAlpha = 1;
+  cx.fillStyle = ink; cx.fillRect(x0, y0, px / 2, 5); cx.strokeStyle = ink; cx.lineWidth = 1; cx.strokeRect(x0 + 0.5, y0 + 0.5, px - 1, 5);
+  cx.font = "600 11px " + css("--font-ui"); cx.textAlign = "center"; cx.fillText("0", x0, y0 - 5); cx.fillText(String(L / 2), x0 + px / 2, y0 - 5);
+  cx.textAlign = "left"; cx.fillText(`${L} km`, x0 + px - 4, y0 - 5);
+  const nx = w - 30, ny = h - 58;                                     // north arrow, bottom right
+  cx.fillStyle = halo; cx.globalAlpha = 0.85; cx.beginPath(); cx.arc(nx, ny, 19, 0, 7); cx.fill(); cx.globalAlpha = 1;
+  cx.beginPath(); cx.moveTo(nx, ny - 15); cx.lineTo(nx + 7, ny + 7); cx.lineTo(nx, ny + 2); cx.closePath(); cx.fillStyle = ink; cx.fill();
+  cx.beginPath(); cx.moveTo(nx, ny - 15); cx.lineTo(nx - 7, ny + 7); cx.lineTo(nx, ny + 2); cx.closePath(); cx.strokeStyle = ink; cx.lineWidth = 1.2; cx.stroke();
+  cx.font = "700 11px " + css("--font-ui"); cx.textAlign = "center"; cx.fillStyle = ink; cx.fillText("N", nx, ny + 17);
+  cx.restore();
+}
+{ const _draw = draw; draw = function(){ _draw(); drawDecor(); }; }
 // ---------- 3D view (three.js): terrain mesh with a painted texture, radar plume columns, S3 cores, heritage pins ----------
 const TR = {"ext":[380.0,580.0,3925.0,4125.0],"nx":400,"ny":400,"tex":[1600,1600],"zmax":1519.430908203125}, TEXW = 2048, VOLIDX = {"chunks": [{"file": "vol/vol_20250322.bin.gz", "f0": 0, "f1": 154}, {"file": "vol/vol_20250323.bin.gz", "f0": 155, "f1": 334}, {"file": "vol/vol_20250324.bin.gz", "f0": 335, "f1": 478}, {"file": "vol/vol_20250325.bin.gz", "f0": 479, "f1": 700}, {"file": "vol/vol_20250326.bin.gz", "f0": 701, "f1": 846}, {"file": "vol/vol_20250327.bin.gz", "f0": 847, "f1": 990}, {"file": "vol/vol_20250328.bin.gz", "f0": 991, "f1": 1093}]};
 // layered radar volume: one gzip file per day, each voxel one uint32 (column 14 bits, level 5 bits, dBZ-15 7 bits, smoke 1 bit)
