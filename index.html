@@ -171,7 +171,7 @@ aside{min-width:0; display:flex; flex-direction:column; gap:10px; overflow:auto}
     <div class="card">
       <h2>레이어</h2>
       <div class="layers">
-        <label><input type="checkbox" id="lTop" checked> 레이더 연기 기둥 높이 (15 dBZ 에코 꼭대기)</label>
+        <label><input type="checkbox" id="lTop" checked> 레이더 연기 기둥 높이 (15 dBZ 에코 정점고도)</label>
         <label><input type="checkbox" id="lS1"> 레이더 연기 에코 (15 dBZ 이상, ρhv 0.8 미만)</label>
         <label><input type="checkbox" id="lS2"> 레이더 심층 연기 기둥 (에코 정점고도 3.5 km 이상)</label>
         <label><input type="checkbox" id="lCore" checked> 레이더 저층 연기 기둥 핵 (고도 1~2 km, 30 dBZ 이상, ρhv 0.8 미만, 10분 간격 2회 연속)</label>
@@ -187,7 +187,7 @@ aside{min-width:0; display:flex; flex-direction:column; gap:10px; overflow:auto}
       <div class="legend">
         <div><span class="sw" style="background:var(--fire)"></span>긴급: 화재 도달(GK2A 2.5 km 안) 또는 1시간 안 도달 예측</div>
         <div><span class="sw" style="background:var(--alarm)"></span>경보: 레이더 저층 연기 기둥 핵(8 km 안, 최근 6시간) 또는 예측 시간 안 도달</div>
-        <div><span class="sw" style="background:var(--watch)"></span>주의: 레이더 깊은 연기 기둥(5 km 안, 에코 꼭대기 3.5 km 이상) 또는 6시간 안 도달 예측</div>
+        <div><span class="sw" style="background:var(--watch)"></span>주의: 레이더 깊은 연기 기둥(5 km 안, 에코 정점고도 3.5 km 이상) 또는 6시간 안 도달 예측</div>
         <div><span class="sw" style="background:var(--notice)"></span>관심: GK2A 화점 20 km 안(최근 2시간)</div>
         <div><span class="sw" style="background:var(--wait)"></span>정상</div>
         <div><span class="sw" style="background:#c2185b;opacity:.45;border-color:#c2185b;border-radius:2px"></span>예측 확산 범위 (활성 화점별 바람 타원)</div>
@@ -195,7 +195,7 @@ aside{min-width:0; display:flex; flex-direction:column; gap:10px; overflow:auto}
         <div><span class="sw" style="background:rgba(121,85,72,0.55);border-radius:1px;border-color:rgba(121,85,72,0.55)"></span>레이더 연기 에코가 있는 1 km 칸</div>
         <div><span class="sw" style="background:transparent;border-radius:1px;border-color:#5e35b1;border-width:2px"></span>레이더 심층 연기 기둥 1 km 칸</div>
         <div><span class="sw" style="background:var(--core);border-radius:1px;border-color:#7a5a00"></span>레이더 저층 연기 기둥 핵이 있는 1 km 칸</div>
-        <div>에코 꼭대기 3 km <span class="bar"></span> 9 km</div>
+        <div>에코 정점고도 3 km <span class="bar"></span> 9 km</div>
         <div>해발 0 m <span class="bar" id="elevbar"></span> 1,900 m</div>
         <div><span style="width:22px;height:0;border-top:3px solid #AA00FF;flex:none"></span>경북 도계 · <span style="width:22px;height:0;border-top:2px solid #00838F;flex:none"></span>시군 경계 · <span style="width:16px;height:0;border-top:1px solid var(--map-ink);flex:none;opacity:.6"></span>시도 경계</div>
         <div><span class="sw" style="background:#ff3b1f;border-color:#ff3b1f;width:7px;height:7px"></span>GK2A 탐지 (현재 시각 포함 시간대), 흐린 점은 이전 시간</div>
