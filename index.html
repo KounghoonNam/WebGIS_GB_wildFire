@@ -885,6 +885,7 @@ function paintTex(){
   const poly = ln => { g.beginPath(); ln.forEach(([x, y], i) => i ? g.lineTo(U(x), V(y)) : g.moveTo(U(x), V(y))); g.stroke(); };
   g.lineJoin = "round"; g.strokeStyle = "rgba(59,70,74,0.6)"; g.lineWidth = 1.5; B.prov.forEach(poly);
   g.strokeStyle = "rgba(255,255,255,0.85)"; g.lineWidth = 6; B.lines.forEach(poly); g.strokeStyle = "#2a2f45"; g.lineWidth = 2.6; B.lines.forEach(poly);
+  g.strokeStyle = "rgba(255,255,255,0.9)"; g.lineWidth = 9; GBO.forEach(poly); g.strokeStyle = "#AA00FF"; g.lineWidth = 5; GBO.forEach(poly);   // Gyeongbuk outline (same as 2D)
   g.setLineDash([14, 10]); g.strokeStyle = "#3b464a"; g.lineWidth = 2; g.strokeRect(U(G.x0), V(G.y1), (G.x1 - G.x0) * k, (G.y1 - G.y0) * k); g.setLineDash([]);
   if ($("lFc").checked && FC.pts.length){ const off = document.createElement("canvas"); off.width = TEXW; off.height = TEXW; const o = off.getContext("2d"); o.fillStyle = "#c2185b";
     for (const p of FC.pts){ const head = p.R * FC.H, back = head * (1 - p.e) / (1 + p.e), a = (head + back) / 2, b = a / p.LB, c = head - a;
