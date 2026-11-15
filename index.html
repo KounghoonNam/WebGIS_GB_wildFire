@@ -1034,5 +1034,13 @@ for (const b of document.querySelectorAll(".jumpTop")) b.onclick = () => { docum
   resize(); buildTicks(); computeSeries(); buildRoll();
   fi = tms.findIndex(t => t >= new Date("2025-03-25T15:30:00+09:00").getTime());
   setMode("all"); setSource("live");          // default view (2026-11-06): live monitoring, all 1,650 Gyeongbuk heritage sites
+  // URL parameters (2026-11-16): open a view directly, e.g. ?mode=replay&t=2025-03-25T16:20&view=3d (or #3d)
+  const qs = new URLSearchParams(location.search), want3d = qs.get("view") === "3d" || location.hash === "#3d";
+  if (qs.get("mode") === "replay" || qs.has("t")){
+    setSource("replay");
+    if (qs.has("t")){ const tt = new Date(qs.get("t").replace(" ", "T") + ":00+09:00").getTime();
+      if (!isNaN(tt)){ let k = tms.findIndex(x => x >= tt); if (k < 0) k = NF - 1; setFrame(k); } }
+  }
+  if (want3d) await toggle3d();
 })();
 </script>
