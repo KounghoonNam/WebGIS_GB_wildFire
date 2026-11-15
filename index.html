@@ -186,7 +186,7 @@ aside{min-width:0; display:flex; flex-direction:column; gap:10px; overflow:auto}
         <label><input type="checkbox" id="lWind" checked> AWS 풍향·풍속 (1시간 평균, 63개 관측소)</label>
         <label><input type="checkbox" id="lDnbr"> Landsat dNBR 연소 심도 (2025년 3월 경북 의성발 산불, 진화 후 영상)</label>
         <label><input type="checkbox" id="lBurn"> 최종 연소 범위 (2025년 3월 경북 의성발 산불, Landsat, 59,752 ha)</label>
-        <label><input type="checkbox" id="lFac" checked> 경북 등록공장 위치 (15,880곳, 산림-주거 접경지 등급: 반경 100 m 산림 유무·반경 500 m 산림 비율)</label>
+        <label><input type="checkbox" id="lFac" checked> 경북 등록공장 위치 (16,018곳, 산림-주거 접경지 등급: 반경 100 m 산림 유무·반경 500 m 산림 비율)</label>
         <label><input type="checkbox" id="lTop10" checked> 산림 인접 공장 실증 후보 10개소 (S01~S10)</label>
       </div>
     </div>
@@ -210,7 +210,7 @@ aside{min-width:0; display:flex; flex-direction:column; gap:10px; overflow:auto}
         <div><span class="sw" style="background:#00a6c8;border-color:#00566a;border-radius:1px;width:7px;height:7px"></span>VIIRS 탐지 (최근 3시간 이내 통과), 연한 점 = 그 이전 통과</div>
         <div>AWS 풍향·풍속 (화살표 = 풍하 방향) <span style="color:#2c7fb8">━</span>&lt;3 <span style="color:#41ab5d">━</span>3~6 <span style="color:#e6550d">━</span>6~9 <span style="color:#a50f15">━</span>9 m/s 이상</div>
         <div>dNBR <span class="sw" style="background:rgb(246,215,67);border-radius:1px"></span>0.27~0.44 <span class="sw" style="background:rgb(240,138,36);border-radius:1px"></span>0.44~0.66 <span class="sw" style="background:rgb(163,32,27);border-radius:1px"></span>0.66 이상</div>
-        <div style="flex-wrap:wrap">등록공장 산림-주거 접경지 등급 <span class="sw" style="background:#263238;border-color:#263238;border-radius:0;width:8px;height:8px"></span>상 <span class="sw" style="background:#607d8b;border-color:#607d8b;border-radius:0;width:8px;height:8px"></span>중 <span class="sw" style="background:#b0bec5;border-color:#b0bec5;border-radius:0;width:8px;height:8px"></span>하 · <span class="sw" style="background:#00897b;border-color:#fff;border-radius:1px;width:9px;height:9px;transform:rotate(45deg)"></span>실증 후보 10개소</div>
+        <div style="flex-wrap:wrap">등록공장 산림-주거 접경지 등급 <span class="sw" style="background:#263238;border-color:#263238;border-radius:0;width:8px;height:8px"></span>상 <span class="sw" style="background:#607d8b;border-color:#607d8b;border-radius:0;width:8px;height:8px"></span>중 <span class="sw" style="background:#b0bec5;border-color:#b0bec5;border-radius:0;width:8px;height:8px"></span>하 · <span class="sw" style="background:transparent;border-color:#c62828;border-radius:0;width:8px;height:8px"></span>국가기간산업·보안 시설 · <span class="sw" style="background:#00897b;border-color:#fff;border-radius:1px;width:9px;height:9px;transform:rotate(45deg)"></span>실증 후보 10개소</div>
       </div>
     </div>
     <div class="card">
@@ -259,7 +259,7 @@ aside{min-width:0; display:flex; flex-direction:column; gap:10px; overflow:auto}
       <p style="margin:12px 0 4px;font-weight:700;color:var(--accent)">10. 자료 출처</p>
       <p><b>자료 출처.</b> 기상청 면봉산 S밴드 이중편파 레이더(원시 자료, 1 km 격자), 기상청 AWS·ASOS, GK2A 산불 탐지 산출물, VIIRS 화재 탐지(NASA FIRMS), Landsat dNBR·연소 범위, 국가유산청 국가유산 공개 자료, 국토지리정보원 10 m 수치표고모델(DEM).</p>
       <p style="margin:12px 0 4px;font-weight:700;color:var(--accent)">11. 경북 등록공장과 산림-주거 접경지 등급</p>
-      <p><b>경북 등록공장.</b> 한국산업단지공단 전국등록공장현황(2025년 12월 31일 기준)의 경북 공장 16,514곳 중 주소 좌표 변환이 완료된 공장을 표시한다. 공장을 선택하면 회사명, 주소, 산업단지명, 생산품, 위험 유형, 산림-주거 접경지 등급이 표시된다. 국가기간산업·보안 시설은 표시 대상에서 제외한다.</p>
+      <p><b>경북 등록공장.</b> 한국산업단지공단 전국등록공장현황(2025년 12월 31일 기준)의 경북 공장 16,514곳 중 주소 좌표 변환이 완료된 공장을 표시한다. 공장을 선택하면 회사명, 주소, 산업단지명, 생산품, 위험 유형, 산림-주거 접경지 등급이 표시된다. 국가기간산업·보안 시설(탄약·화약, 제철, 원자력, 반도체 특수가스 등 138곳)은 빨간 테두리로 구분하며, 출입·촬영 제한으로 실증 후보에서는 제외한다.</p>
       <p><b>산림-주거 접경지(WUI) 등급.</b> 임상도(1:25,000)를 10 m 격자로 변환하여 공장 반경 100 m 이내 산림이 있고 반경 500 m 산림 비율이 50% 이상이면 상, 30~50%이면 중, 그 외는 하로 분류한다. 실증 후보 10개소는 산림 비율, 필지 면적, 2025년 연소 범위까지의 거리로 점수를 산정하여 선정한 산림 인접 공장이다.</p>
     </div>
   </aside>
@@ -566,7 +566,8 @@ function draw(){
       for (const g of [0, 1, 2]){ cx.fillStyle = FC[g]; cx.globalAlpha = g === 0 ? 0.55 : 0.9;
         for (const f of FAC.pts){ if (f[2] !== g) continue; const a = X(f[0]), b = Y(f[1]);
           if (a < -5 || b < -5 || a > w + 5 || b > h + 5) continue; cx.fillRect(a - q, b - q, 2*q, 2*q); } }
-      cx.globalAlpha = 1; }
+      cx.globalAlpha = 1; cx.strokeStyle = "#c62828"; cx.lineWidth = 1.4;                 // 국가기간산업·보안 시설: 빨간 테두리
+      for (const f of FAC.pts){ if (!f[12]) continue; const a = X(f[0]), b = Y(f[1]); cx.strokeRect(a - q - 1.5, b - q - 1.5, 2*q + 3, 2*q + 3); } }
     if (lay.t10){ cx.font = "700 11px " + css("--font-ui"); cx.textAlign = "left";
       for (const [n, x, y] of FAC.top10){ const a = X(x), b = Y(y), d = 6;
         cx.beginPath(); cx.moveTo(a, b - d); cx.lineTo(a + d, b); cx.lineTo(a, b + d); cx.lineTo(a - d, b); cx.closePath();
@@ -723,7 +724,7 @@ function facTip(e, pinned = false){
   if (k.t){ const [n, , , sg, fr, db, ty, co, pr, ad, pa, sc] = k.t;
     s = `<b>실증 후보 ${n}: ${escH(co || "")}</b><br>${escH(ad || sg)}<br>생산품: ${escH(pr || "-")}<br>산림-주거 접경지 등급 상 · 반경 500 m 산림 비율 ${fr}%<br>2025년 연소 범위까지 ${db} km · 필지 면적 ${pa ? pa.toLocaleString() + " m²" : "-"}<br>위험 유형: ${escH(ty)} · 선정 점수 ${sc ?? "-"}`; }
   else { const f = k.f;
-    s = `<b>${escH(f[8] || "등록공장")}</b><br>${escH(f[10] || FAC.sgg[f[3]])}<br>${f[6] ? "산업단지" + (f[9] ? " (" + escH(f[9]) + ")" : "") : "개별입지"}<br>생산품: ${escH(f[7]) || "-"}${f[11] ? " · " + TY[f[11]] : ""}<br>산림-주거 접경지 등급 ${GN[f[2]]} · 반경 500 m 산림 비율 ${f[4]}%<br>2025년 연소 범위까지 ${f[5]} km`; }
+    s = `<b>${escH(f[8] || "등록공장")}</b><br>${escH(f[10] || FAC.sgg[f[3]])}<br>${f[6] ? "산업단지" + (f[9] ? " (" + escH(f[9]) + ")" : "") : "개별입지"}<br>생산품: ${escH(f[7]) || "-"}${f[11] ? " · " + TY[f[11]] : ""}${f[12] ? "<br><b style=\"color:#c62828\">국가기간산업·보안 시설(실증 후보 제외)</b>" : ""}<br>산림-주거 접경지 등급 ${GN[f[2]]} · 반경 500 m 산림 비율 ${f[4]}%<br>2025년 연소 범위까지 ${f[5]} km`; }
   tip.innerHTML = s; tip.hidden = false; tip.style.pointerEvents = pinned ? "auto" : "none"; tip.dataset.i = "-1";
   let lx = e.clientX - r.left + 14, ly = e.clientY - r.top + 10; const tw = tip.offsetWidth || 260, th = tip.offsetHeight || 140;
   if (lx + tw > r.width) lx = Math.max(4, e.clientX - r.left - tw - 14); if (ly + th > r.height) ly = Math.max(4, e.clientY - r.top - th - 10);
