@@ -512,12 +512,12 @@ function utmInv(xkm, ykm){                       // UTM zone 52N (km) -> [lon, l
 }
 function drawLoc(){
   const lc = $("loc"), host = is3d ? $("view3d") : cv; if (!lc || !host.clientHeight) return;
-  const W = 176, Hh = 182, mw = Math.min(host.clientWidth, host.clientHeight), S = Math.max(96, Math.min(200, Math.round(mw*0.24))), q = S/W;   // size follows the map (2026-11-16)
+  const W = 176, Hh = 182, mw = Math.min(host.clientWidth, host.clientHeight), S = Math.max(80, Math.min(150, Math.round(mw*0.17))), q = S/W;   // size follows the map (2026-11-16)
   const k = (window.devicePixelRatio || 1)*q; lc.style.width = S + "px"; lc.style.height = Math.round(Hh*q) + "px"; if (lc.width !== Math.round(W*k)){ lc.width = Math.round(W*k); lc.height = Math.round(Hh*k); }
   const mn = $("mapnote"); lc.style.top = ((mn && !mn.hidden && mn.offsetHeight ? mn.offsetTop + mn.offsetHeight : host.offsetTop) + (is3d ? 6 : 58)) + "px";   // 2D: below the north arrow
   const g = lc.getContext("2d"); g.setTransform(k, 0, 0, k, 0, 0); g.clearRect(0, 0, W, Hh);
   const R = 80, cx0 = W/2, cy0 = 84, L0 = 127.8*Math.PI/180, P0 = 36*Math.PI/180, sP0 = Math.sin(P0), cP0 = Math.cos(P0);
-  const Z = 8, RZ = R*Z;                                                                     // zoom on South Korea (globe radius RZ seen through a lens of radius R)
+  const Z = 11, RZ = R*Z;                                                                     // zoom on South Korea (globe radius RZ seen through a lens of radius R)
   const pr = (lon, lat) => { const l = lon*Math.PI/180 - L0, p = lat*Math.PI/180, cp = Math.cos(p);
     return [cx0 + RZ*cp*Math.sin(l), cy0 - RZ*(cP0*Math.sin(p) - sP0*cp*Math.cos(l)), sP0*Math.sin(p) + cP0*cp*Math.cos(l) >= 0]; };
   const sea = g.createRadialGradient(cx0 - R*0.35, cy0 - R*0.35, R*0.1, cx0, cy0, R);
@@ -525,8 +525,8 @@ function drawLoc(){
   g.beginPath(); g.arc(cx0, cy0, R, 0, 7); g.fillStyle = sea; g.fill();
   g.save(); g.beginPath(); g.arc(cx0, cy0, R, 0, 7); g.clip();
   g.strokeStyle = "rgba(255,255,255,0.55)"; g.lineWidth = 0.6;                                  // graticule 30 deg
-  for (let lo = -180; lo < 180; lo += 2){ g.beginPath(); let on = false; for (let la = -90; la <= 90; la += 0.5){ const [x, y, v] = pr(lo, la); if (v){ on ? g.lineTo(x, y) : g.moveTo(x, y); on = true; } else on = false; } g.stroke(); }
-  for (let la = -80; la <= 80; la += 2){ g.beginPath(); let on = false; for (let lo = -180; lo <= 180; lo += 0.5){ const [x, y, v] = pr(lo, la); if (v){ on ? g.lineTo(x, y) : g.moveTo(x, y); on = true; } else on = false; } g.stroke(); }
+  for (let lo = -180; lo < 180; lo += 1){ g.beginPath(); let on = false; for (let la = -90; la <= 90; la += 0.25){ const [x, y, v] = pr(lo, la); if (v){ on ? g.lineTo(x, y) : g.moveTo(x, y); on = true; } else on = false; } g.stroke(); }
+  for (let la = -80; la <= 80; la += 1){ g.beginPath(); let on = false; for (let lo = -180; lo <= 180; lo += 0.25){ const [x, y, v] = pr(lo, la); if (v){ on ? g.lineTo(x, y) : g.moveTo(x, y); on = true; } else on = false; } g.stroke(); }
   const ring = (rg, fill, stroke, lw) => { g.beginPath(); rg.forEach(([lo, la], i) => { const [x, y] = pr(lo/10, la/10); i ? g.lineTo(x, y) : g.moveTo(x, y); }); g.closePath();
     g.fillStyle = fill; g.fill(); g.strokeStyle = stroke; g.lineWidth = lw; g.stroke(); };
   for (const rg of GLOBE.land) ring(rg, "#efe9d6", "#8d8a78", 0.5);
