@@ -517,7 +517,7 @@ function drawLoc(){
   const mn = $("mapnote"); lc.style.top = ((mn && !mn.hidden && mn.offsetHeight ? mn.offsetTop + mn.offsetHeight : host.offsetTop) + (is3d ? 6 : 58)) + "px";   // 2D: below the north arrow
   const g = lc.getContext("2d"); g.setTransform(k, 0, 0, k, 0, 0); g.clearRect(0, 0, W, Hh);
   const R = 80, cx0 = W/2, cy0 = 84, L0 = 127.8*Math.PI/180, P0 = 36*Math.PI/180, sP0 = Math.sin(P0), cP0 = Math.cos(P0);
-  const Z = 5.5, RZ = R*Z;                                                                     // zoom on South Korea (globe radius RZ seen through a lens of radius R)
+  const Z = 8, RZ = R*Z;                                                                     // zoom on South Korea (globe radius RZ seen through a lens of radius R)
   const pr = (lon, lat) => { const l = lon*Math.PI/180 - L0, p = lat*Math.PI/180, cp = Math.cos(p);
     return [cx0 + RZ*cp*Math.sin(l), cy0 - RZ*(cP0*Math.sin(p) - sP0*cp*Math.cos(l)), sP0*Math.sin(p) + cP0*cp*Math.cos(l) >= 0]; };
   const sea = g.createRadialGradient(cx0 - R*0.35, cy0 - R*0.35, R*0.1, cx0, cy0, R);
@@ -525,12 +525,15 @@ function drawLoc(){
   g.beginPath(); g.arc(cx0, cy0, R, 0, 7); g.fillStyle = sea; g.fill();
   g.save(); g.beginPath(); g.arc(cx0, cy0, R, 0, 7); g.clip();
   g.strokeStyle = "rgba(255,255,255,0.55)"; g.lineWidth = 0.6;                                  // graticule 30 deg
-  for (let lo = -180; lo < 180; lo += 5){ g.beginPath(); let on = false; for (let la = -90; la <= 90; la += 1){ const [x, y, v] = pr(lo, la); if (v){ on ? g.lineTo(x, y) : g.moveTo(x, y); on = true; } else on = false; } g.stroke(); }
-  for (let la = -80; la <= 80; la += 5){ g.beginPath(); let on = false; for (let lo = -180; lo <= 180; lo += 1){ const [x, y, v] = pr(lo, la); if (v){ on ? g.lineTo(x, y) : g.moveTo(x, y); on = true; } else on = false; } g.stroke(); }
+  for (let lo = -180; lo < 180; lo += 2){ g.beginPath(); let on = false; for (let la = -90; la <= 90; la += 0.5){ const [x, y, v] = pr(lo, la); if (v){ on ? g.lineTo(x, y) : g.moveTo(x, y); on = true; } else on = false; } g.stroke(); }
+  for (let la = -80; la <= 80; la += 2){ g.beginPath(); let on = false; for (let lo = -180; lo <= 180; lo += 0.5){ const [x, y, v] = pr(lo, la); if (v){ on ? g.lineTo(x, y) : g.moveTo(x, y); on = true; } else on = false; } g.stroke(); }
   const ring = (rg, fill, stroke, lw) => { g.beginPath(); rg.forEach(([lo, la], i) => { const [x, y] = pr(lo/10, la/10); i ? g.lineTo(x, y) : g.moveTo(x, y); }); g.closePath();
     g.fillStyle = fill; g.fill(); g.strokeStyle = stroke; g.lineWidth = lw; g.stroke(); };
   for (const rg of GLOBE.land) ring(rg, "#efe9d6", "#8d8a78", 0.5);
-  for (const rg of GLOBE.kor) ring(rg, "#f4a7a0", "#c62828", 1.0);                                // South Korea
+  for (const rg of GLOBE.kor) ring(rg, "#efe9d6", "#8d8a78", 0.5);                                // South Korea land (no shading)
+  if (!GLOBE.provLL) GLOBE.provLL = B.prov.map(ln => ln.map(([x, y]) => utmInv(x, y)));        // province (sido) boundaries, UTM km -> lon/lat once
+  g.strokeStyle = "rgba(78,74,63,0.85)"; g.lineWidth = 0.5; g.lineJoin = "round";
+  for (const ln of GLOBE.provLL){ g.beginPath(); ln.forEach(([lo, la], i) => { const [x, y] = pr(lo, la); i ? g.lineTo(x, y) : g.moveTo(x, y); }); g.stroke(); }                                // South Korea
   let r = null;
   if (is3d) r = [G.x0, G.x1, G.y0, G.y1];
   else if (view){ const w = cv.clientWidth, h = cv.clientHeight; r = [-view.ox/view.s, (w - view.ox)/view.s, (view.oy - h)/view.s, view.oy/view.s]; }
