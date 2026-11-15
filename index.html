@@ -84,7 +84,7 @@ aside{min-width:0; display:flex; flex-direction:column; gap:10px; overflow:auto}
 #tip b{font-size:13px}
 .mapnote{position:absolute; left:10px; top:8px; font-size:11.5px; color:var(--map-ink); background:color-mix(in srgb,var(--panel) 82%,transparent);
   padding:4px 8px; border-radius:4px; max-width:70%}
-#loc{position:absolute; left:10px; width:176px; height:182px; pointer-events:none; z-index:3}
+#loc{position:absolute; left:10px; pointer-events:none; z-index:3}
 .zoom{position:absolute; right:10px; top:8px; display:flex; flex-direction:column; gap:4px}
 .zoom button{min-width:30px; height:30px; padding:0 6px; font-size:16px} #zreset,#zkr{font-size:11.5px}
 .notes{font-size:12px; color:var(--muted); line-height:1.6}
@@ -512,7 +512,8 @@ function utmInv(xkm, ykm){                       // UTM zone 52N (km) -> [lon, l
 }
 function drawLoc(){
   const lc = $("loc"), host = is3d ? $("view3d") : cv; if (!lc || !host.clientHeight) return;
-  const k = window.devicePixelRatio || 1, W = 176, Hh = 182; if (lc.width !== W*k){ lc.width = W*k; lc.height = Hh*k; }
+  const W = 176, Hh = 182, mw = Math.min(host.clientWidth, host.clientHeight), S = Math.max(96, Math.min(200, Math.round(mw*0.24))), q = S/W;   // size follows the map (2026-11-16)
+  const k = (window.devicePixelRatio || 1)*q; lc.style.width = S + "px"; lc.style.height = Math.round(Hh*q) + "px"; if (lc.width !== Math.round(W*k)){ lc.width = Math.round(W*k); lc.height = Math.round(Hh*k); }
   const mn = $("mapnote"); lc.style.top = ((mn && !mn.hidden && mn.offsetHeight ? mn.offsetTop + mn.offsetHeight : host.offsetTop) + (is3d ? 6 : 58)) + "px";   // 2D: below the north arrow
   const g = lc.getContext("2d"); g.setTransform(k, 0, 0, k, 0, 0); g.clearRect(0, 0, W, Hh);
   const R = 80, cx0 = W/2, cy0 = 84, L0 = 127.8*Math.PI/180, P0 = 36*Math.PI/180, sP0 = Math.sin(P0), cP0 = Math.cos(P0);
